@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:aiinterviewer/bloc/signup_bloc/signup_cubit.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/views/login_screen.dart';
-import 'package:aiinterviewer/views/main_screen.dart';
+import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +78,7 @@ class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
             if (state.isSuccess) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => MainScreen()),
+                MaterialPageRoute(builder: (context) => RecruiterMainScreen()),
               );
             } else if (state.errorMessage != null) {
               // Show error message
