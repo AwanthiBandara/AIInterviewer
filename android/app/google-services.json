@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "176006347568",
+    "project_id": "ai-interviewer-f54f1",
+    "storage_bucket": "ai-interviewer-f54f1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:176006347568:android:0ee127ad7b884ae2fc66f5",
+        "android_client_info": {
+          "package_name": "com.example.aiinterviewer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-Gu755qt-CG5cNz9qCLPucz42zfpONoc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
