@@ -13,8 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RecruiterMyFeedScreen extends StatelessWidget {
-  RecruiterMyFeedScreen({super.key}) {}
+class SeekerMyFeedScreen extends StatelessWidget {
+  SeekerMyFeedScreen({super.key}) {}
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -53,29 +53,44 @@ class RecruiterMyFeedScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             BlocBuilder<AppCubit, AppState>(
+              builder: (context, state) {
+                return Row(
                   children: [
-                    BlocBuilder<AppCubit, AppState>(
-                      builder: (context, state) {
-                        final userInfo = state.userInfo;
-                        return Text(
-                          "Welcome ${userInfo.firstName},",
-                          style: const TextStyle(
-                            color: white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 1.6,
-                          ),
-                        );
-                      },
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: secondaryColor),
+                        image: DecorationImage(
+                          image: NetworkImage(
+                              state.userInfo.profileUrl),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                    const Icon(Icons.notifications_rounded, color: white),
+                    SizedBox(width: 8),
+                    Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("${state.userInfo.firstName} ${state.userInfo.lastName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: greyTextColor),),
+                                const Text("HR Head at ABC Pvt Ltd, UK", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
+                              ],
+                            ),
+                            Spacer(),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.bookmark, color: greyTextColor, size: 22,),
+                      ],
+                    )
                   ],
-                ),
-            Text("Best fit employees\nwithin second",
-                style: TextStyle(
-                    fontSize: 32, fontWeight: FontWeight.bold, color: white)),
+                );
+              },
+            ),
+            const SizedBox(height: 5),
+            Divider(color: secondaryColor, thickness: 0.4,),
             const SizedBox(height: 15),
             CustomSearchBar(
               controller: _searchController,
@@ -86,17 +101,17 @@ class RecruiterMyFeedScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Your published jobs",
+                  "Jobs you're interviewed",
                   style: TextStyle(
                       color: white, fontWeight: FontWeight.w500, fontSize: 16),
                 ),
-                CustomButton(
-                  onTap: () => _showNewJobBottomSheet(context),
-                  buttonText: "Publish job",
-                  buttonType: ButtonType.Small,
-                  buttonColor: secondaryColor.withOpacity(0.3),
-                  textColor: secondaryColor,
-                ),
+                // CustomButton(
+                //   onTap: () => _showNewJobBottomSheet(context),
+                //   buttonText: "Publish job",
+                //   buttonType: ButtonType.Small,
+                //   buttonColor: secondaryColor.withOpacity(0.3),
+                //   textColor: secondaryColor,
+                // ),
               ],
             ),
             const SizedBox(height: 15),
@@ -110,6 +125,13 @@ class RecruiterMyFeedScreen extends StatelessWidget {
                       .where((job) => job.createdBy == currentUserId)
                       .toList()
                       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+                      if(filteredAndSortedJobs.length == 0){
+                        return Center(child: Padding(
+                          padding: const EdgeInsets.only(top: 170),
+                          child: Text("No available jobs you're interviewed", style: TextStyle(color: greyTextColor),),
+                        ));
+                      }
 
                     return Expanded(
                       child: ListView.builder(

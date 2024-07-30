@@ -1,5 +1,7 @@
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/login_bloc/login_cubit.dart';
+import 'package:aiinterviewer/views/recruiter/recruiter_signup_screen.dart';
+import 'package:aiinterviewer/views/seeker/seeker_signup_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -78,12 +80,28 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        // Navigate to signup screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SeekerSignupScreen()),
+                        );
                       },
-                      child: const Text("Not registered yet?", style: TextStyle(fontSize: 14, color: greyTextColor)),
+                      child: RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Don't have an account? ",
+                              style: TextStyle(color: grayColor, fontSize: 14),
+                            ),
+                            TextSpan(
+                              text: "Signup",
+                              style: TextStyle(color: greyTextColor, fontSize: 14, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
-                )
+                ),
               ],
             );
           },
