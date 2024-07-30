@@ -30,7 +30,7 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: enabled ? buttonColor : Colors.grey, // Button background color
+      color: enabled ? buttonColor : cardTextColor, // Button background color
       borderRadius: BorderRadius.circular(buttonType == ButtonType.Medium ? 8 : 6),
       child: InkWell(
         onTap: enabled ? onTap : null,

@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:aiinterviewer/models/user_info_mode.dart';
-import 'package:aiinterviewer/views/main_screen.dart';
+import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -75,7 +75,7 @@ class SignupCubit extends Cubit<SignupState> {
         // Navigate to MainScreen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MainScreen()),
+          MaterialPageRoute(builder: (context) => RecruiterMainScreen()),
         );
       }
     } on FirebaseAuthException catch (e) {
