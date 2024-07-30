@@ -42,6 +42,26 @@ class RecruiterPublicFeedScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+             Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    BlocBuilder<AppCubit, AppState>(
+                      builder: (context, state) {
+                        final userInfo = state.userInfo;
+                        return Text(
+                          "Welcome ${userInfo.firstName},",
+                          style: const TextStyle(
+                            color: white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 1.6,
+                          ),
+                        );
+                      },
+                    ),
+                    const Icon(Icons.notifications_rounded, color: white),
+                  ],
+                ),
             Text("Explore employees\nfor IT Solutions",
                 style: TextStyle(
                     fontSize: 32, fontWeight: FontWeight.bold, color: white)),

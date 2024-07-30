@@ -206,15 +206,28 @@ class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                         Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginScreen()),
-                          );
-                        },
-                        child: const Text("Already have an account?", style: TextStyle(fontSize: 14, color: greyTextColor),),
+                       GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginScreen()),
+                        );
+                      },
+                      child: RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Already have an account? ",
+                              style: TextStyle(color: grayColor, fontSize: 14),
+                            ),
+                            TextSpan(
+                              text: "Login",
+                              style: TextStyle(color: greyTextColor, fontSize: 14, fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
                       ),
+                    ),
                     ],
                   ),
                   const SizedBox(height: 30),

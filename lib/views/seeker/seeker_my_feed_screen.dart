@@ -13,8 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RecruiterMyFeedScreen extends StatelessWidget {
-  RecruiterMyFeedScreen({super.key}) {}
+class SeekerMyFeedScreen extends StatelessWidget {
+  SeekerMyFeedScreen({super.key}) {}
 
   final TextEditingController _searchController = TextEditingController();
 

@@ -13,12 +13,12 @@ import 'package:flutter/material.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RecruiterMyFeedScreen extends StatelessWidget {
-  RecruiterMyFeedScreen({super.key}) {}
+class SeekerPublicFeedScreen extends StatelessWidget {
+  SeekerPublicFeedScreen({super.key}) {}
 
   final TextEditingController _searchController = TextEditingController();
 
-      void _showNewJobBottomSheet(BuildContext context) {
+    void _showNewJobBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -31,18 +31,7 @@ class RecruiterMyFeedScreen extends StatelessWidget {
     );
   }
 
-     void _showRecruiterViewJobBottomSheet(BuildContext context, JobModel job) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
-      ),
-      builder: (BuildContext context) {
-        return RecruiterViewJobBottomSheet(job: job);
-      },
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +62,7 @@ class RecruiterMyFeedScreen extends StatelessWidget {
                     const Icon(Icons.notifications_rounded, color: white),
                   ],
                 ),
-            Text("Best fit employees\nwithin second",
+            Text("Find your dream job\nsample text",
                 style: TextStyle(
                     fontSize: 32, fontWeight: FontWeight.bold, color: white)),
             const SizedBox(height: 15),
@@ -86,7 +75,7 @@ class RecruiterMyFeedScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Your published jobs",
+                  "All published jobs",
                   style: TextStyle(
                       color: white, fontWeight: FontWeight.w500, fontSize: 16),
                 ),
@@ -100,38 +89,28 @@ class RecruiterMyFeedScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 15),
-              BlocBuilder<AppCubit, AppState>(
-                  builder: (context, state) {
-                    // Get the current user ID from the AppCubit state
-                    final String currentUserId = state.userInfo.uid;
+            BlocBuilder<AppCubit, AppState>(
+              builder: (context, state) {
+                // Sort the jobs based on createdAt in descending order (latest first)
+                List<JobModel> sortedJobs = List.from(state.jobs)
+                  ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-                    // Filter the jobs by the current user ID and sort them by createdAt in descending order
-                    List<JobModel> filteredAndSortedJobs = (state.jobs as List<JobModel>)
-                      .where((job) => job.createdBy == currentUserId)
-                      .toList()
-                      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-                    return Expanded(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: filteredAndSortedJobs.length,
-                        itemBuilder: (context, index) {
-                          final thisJob = filteredAndSortedJobs[index];
-                          return GestureDetector(
-                            onTap: () => _showRecruiterViewJobBottomSheet(context, thisJob),
-                            child: JobCardRecruiter(
-                              job: thisJob,
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-
-
+                return Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: sortedJobs.length,
+                    itemBuilder: (context, index) {
+                      final thisJob = sortedJobs[index];
+                      return JobCardRecruiter(
+                        job: thisJob,
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
 
           ],
         ),
@@ -222,7 +201,7 @@ class JobCardRecruiter extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "${job.applicants!.length} applicants",
+                "${job.applicants.length} applicants",
                 style: const TextStyle(
                     fontSize: 12, letterSpacing: 0.6, color: white),
               ),
