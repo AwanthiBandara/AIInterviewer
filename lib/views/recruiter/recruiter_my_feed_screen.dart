@@ -53,7 +53,7 @@ class RecruiterMyFeedScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("My Feed",
+            Text("Best fit employees\nwithin second",
                 style: TextStyle(
                     fontSize: 32, fontWeight: FontWeight.bold, color: white)),
             const SizedBox(height: 15),
@@ -66,7 +66,7 @@ class RecruiterMyFeedScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "All published jobs",
+                  "Your published jobs",
                   style: TextStyle(
                       color: white, fontWeight: FontWeight.w500, fontSize: 16),
                 ),

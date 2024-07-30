@@ -42,7 +42,7 @@ class RecruiterPublicFeedScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Sample Heading",
+            Text("Explore employees\nfor IT Solutions",
                 style: TextStyle(
                     fontSize: 32, fontWeight: FontWeight.bold, color: white)),
             const SizedBox(height: 15),
