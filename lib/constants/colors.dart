@@ -9,3 +9,4 @@ const grayColor = Color(0xFFA8A8A8);
 const greyTextColor = Color(0xFFDBDBDB);
 const cardTextColor = Color(0xFF6F7B92);
 const inCardColor = Color(0xFF373D48);
+const green = Color(0xFF00B91F);

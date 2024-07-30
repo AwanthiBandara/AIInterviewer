@@ -5,6 +5,8 @@ import 'package:aiinterviewer/helper/helper_functions.dart';
 import 'package:aiinterviewer/models/job_model.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_searchbar.dart';
+import 'package:aiinterviewer/widgets/new_job_bottomsheet.dart';
+import 'package:aiinterviewer/widgets/recruiter_view_job_bottomsheet.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,21 @@ class RecruiterPublicFeedScreen extends StatelessWidget {
   RecruiterPublicFeedScreen({super.key}) {}
 
   final TextEditingController _searchController = TextEditingController();
+
+    void _showNewJobBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+      ),
+      builder: (BuildContext context) {
+        return NewJobBottomSheet();
+      },
+    );
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +60,7 @@ class RecruiterPublicFeedScreen extends StatelessWidget {
                       color: white, fontWeight: FontWeight.w500, fontSize: 16),
                 ),
                 CustomButton(
-                  onTap: () {},
+                  onTap: () => _showNewJobBottomSheet(context),
                   buttonText: "Publish job",
                   buttonType: ButtonType.Small,
                   buttonColor: secondaryColor.withOpacity(0.3),
@@ -54,20 +71,27 @@ class RecruiterPublicFeedScreen extends StatelessWidget {
             const SizedBox(height: 15),
             BlocBuilder<AppCubit, AppState>(
               builder: (context, state) {
+                // Sort the jobs based on createdAt in descending order (latest first)
+                List<JobModel> sortedJobs = List.from(state.jobs)
+                  ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
                 return Expanded(
-                    child: ListView.builder(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: state.jobs.length,
-                  itemBuilder: (context, index) {
-                    final thisJob = state.jobs[index];
-                    return JobCardRecruiter(job: thisJob,
-                    );
-                  },
-                ));
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: sortedJobs.length,
+                    itemBuilder: (context, index) {
+                      final thisJob = sortedJobs[index];
+                      return JobCardRecruiter(
+                        job: thisJob,
+                      );
+                    },
+                  ),
+                );
               },
             ),
+
           ],
         ),
       ),
@@ -104,7 +128,7 @@ class JobCardRecruiter extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: greyTextColor,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: primaryColor, width: 1.2),
+                  border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
                   image: const DecorationImage(
                     image: NetworkImage(
                         "https://penji.co/wp-content/uploads/2022/10/4.-OrSpeakIT.jpg"),

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AppCubit extends Cubit<AppState> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static const String _cacheKey = 'cached_jobs';
 
   AppCubit()
       : super(AppState(
@@ -30,10 +31,12 @@ class AppCubit extends Cubit<AppState> {
               userType: ''
             ),
             currentTabIndex: 0,
-            jobs: []
+            jobs: [], interviewTypes: [], searchTextList: []
           )) {
     _loadUserInfo();
     _loadJobs();
+    _loadInterviewTypes();
+    _loadSearchTextList();
   }
 
   void setCurrentTabIndex(int currentTabIndex) {
@@ -208,4 +211,158 @@ class AppCubit extends Cubit<AppState> {
       emit(currentState.copyWith(error: 'Failed to update user info cache: $e'));
     }
   }
+
+  Future<void> _loadInterviewTypes() async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedInterviewTypes = prefs.getString('interview_types');
+
+      if (cachedInterviewTypes != null) {
+        List<dynamic> cachedList = jsonDecode(cachedInterviewTypes);
+        List<String> interviewTypes = List<String>.from(cachedList);
+        emit(state.copyWith(interviewTypes: interviewTypes, isLoading: false));
+        // Fetch from Firestore to update cache (if needed)
+        _fetchInterviewTypesFromFirestore();
+      } else {
+        _fetchInterviewTypesFromFirestore(); // Fetch from Firestore if not cached
+      }
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: 'Failed to load categories: $e'));
+    }
+  }
+
+  Future<void> _fetchInterviewTypesFromFirestore() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> doc =
+          await _firestore.collection('interviewTypes').doc('interviewTypes').get();
+      if (doc.exists) {
+        List<String> interviewTypes = List<String>.from(doc.data()?['data'] ?? []);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('interview_types', jsonEncode(interviewTypes));
+        emit(state.copyWith(interviewTypes: interviewTypes, isLoading: false));
+      } else {
+        emit(state.copyWith(isLoading: false, error: 'Categories document does not exist'));
+      }
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: 'Failed to fetch categories from Firestore: $e'));
+    }
+  }
+
+   Future<void> _loadSearchTextList() async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedSearchTextList = prefs.getString('searchTextList');
+
+      if (cachedSearchTextList != null) {
+        List<dynamic> cachedList = jsonDecode(cachedSearchTextList);
+        List<String> searchTextList = List<String>.from(cachedList);
+        emit(state.copyWith(searchTextList: searchTextList, isLoading: false));
+      } else {
+        _updateSearchTextList();
+      }
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: 'Failed to load search text list: $e'));
+    }
+  }
+
+    Future<void> _updateSearchTextList() async {
+    try {
+      List<String> searchTextList = [
+        ...state.interviewTypes
+      ];
+
+      // Cache search text list
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('searchTextList', jsonEncode(searchTextList));
+
+      // Emit the updated state
+      emit(state.copyWith(searchTextList: searchTextList, isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: 'Failed to update search text list: $e'));
+    }
+  }
+
+  Future<void> createJob({
+  required String jobTitle,
+  required String jobDescription,
+  required String interviewType,
+}) async {
+  emit(state.copyWith(isLoading: true));
+  try {
+    // Get the current user UID
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      emit(state.copyWith(isLoading: false, error: 'User not logged in'));
+      return;
+    }
+    
+    String createdBy = currentUser.uid; // Get the UID
+
+    DocumentReference docRef = await _firestore.collection('jobs').add({
+      'jobTitle': jobTitle,
+      'jobDescription': jobDescription,
+      'createdAt': FieldValue.serverTimestamp(),
+      'createdBy': createdBy,
+      'interviewType': interviewType,
+      'applicants': [], // Initially empty array
+    });
+
+    JobModel newJob = JobModel(
+      jobId: docRef.id,
+      jobTitle: jobTitle,
+      jobDescription: jobDescription,
+      createdAt: Timestamp.now(),
+      createdBy: createdBy,
+      applicants: [], 
+      interviewType: interviewType,
+    );
+
+    await docRef.update({'jobId': docRef.id});
+    
+    emit(state.copyWith(isLoading: false));
+    _fetchJobsAndUpdateCache(); // Refresh the list of posts
+  } catch (e) {
+    emit(state.copyWith(isLoading: false, error: 'Failed to create post: $e'));
+  }
+}
+
+Future<void> _fetchJobsAndUpdateCache() async {
+  emit(state.copyWith(isLoading: true));
+  try {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _firestore.collection('jobs').get();
+
+    List<JobModel> jobs = [];
+    for (var doc in querySnapshot.docs) {
+      final data = doc.data();
+      String createdBy = data['createdBy'] as String;
+
+      // Fetch user info for each post
+      DocumentSnapshot<Map<String, dynamic>> userDoc =
+          await _firestore.collection('users').doc(createdBy).get();
+      final userData = userDoc.data() ?? {};
+      String firstName = userData['firstName'] ?? '';
+      String lastName = userData['lastName'] ?? '';
+
+      // Create PostModel with additional fields
+      JobModel job = JobModel.fromJson(data).copyWith(
+        firstName: firstName,
+        lastName: lastName,
+      );
+
+      jobs.add(job);
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jobsJson = jsonEncode(jobs.map((job) => job.toJson()).toList());
+    await prefs.setString(_cacheKey, jobsJson);
+
+    emit(state.copyWith(jobs: jobs, isLoading: false));
+  } catch (e) {
+    print('Error fetching posts: $e'); // Detailed error logging
+    emit(state.copyWith(isLoading: false, error: 'Failed to fetch jobs'));
+  }
+}
 }

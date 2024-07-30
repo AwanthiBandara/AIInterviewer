@@ -10,6 +10,8 @@ class JobModel {
   final String createdBy;
   final List<Applicant> applicants;
   final String interviewType;
+  String? firstName; // Changed to non-final
+  String? lastName;  // Changed to non-final
 
   JobModel({
     required this.jobId,
@@ -19,6 +21,8 @@ class JobModel {
     required this.createdBy,
     required this.applicants,
     required this.interviewType,
+     this.firstName,
+    this.lastName,
   });
 
   factory JobModel.fromJson(Map<String, dynamic> map) {
@@ -32,6 +36,8 @@ class JobModel {
       createdBy: map['createdBy'],
       applicants: (map['applicants'] as List<dynamic>?)?.map((i) => Applicant.fromJson(i as Map<String, dynamic>)).toList() ?? [], 
       interviewType: map['interviewType'],
+      firstName: map['firstName'] as String?, // Handle new fields
+      lastName: map['lastName'] as String?,  // Handle new fields
     );
   }
 
@@ -44,7 +50,33 @@ class JobModel {
       'createdBy': createdBy,
       'applicants': applicants.map((applicant) => applicant.toJson()).toList(),
       'interviewType': interviewType,
+      'firstName': firstName, // Serialize new fields
+      'lastName': lastName,   // Serialize new fields
     };
+  }
+
+  JobModel copyWith({
+    String? jobId,
+    String? jobTitle,
+    String? jobDescription,
+    Timestamp? createdAt,
+    String? createdBy,
+    List<Applicant>? applicants,
+    String? interviewType,
+    String? firstName,
+    String? lastName,
+  }) {
+    return JobModel(
+      jobId: jobId ?? this.jobId,
+      jobTitle: jobTitle ?? this.jobTitle,
+      jobDescription: jobDescription ?? this.jobDescription,
+      createdAt: createdAt ?? this.createdAt,
+      createdBy: createdBy ?? this.createdBy,
+      applicants: applicants ?? this.applicants,
+      interviewType: interviewType ?? this.interviewType,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+    );
   }
 }
 

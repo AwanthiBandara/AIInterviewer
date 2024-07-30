@@ -8,13 +8,17 @@ class AppState {
   final UserInfoModel userInfo;
   final int currentTabIndex;
   final List<JobModel> jobs;
+  final List<String> interviewTypes;
+  final List<String> searchTextList;
 
   AppState({
     required this.isLoading,
     this.error,
     required this.userInfo,
     this.currentTabIndex = 0,
-    required this.jobs
+    required this.jobs,
+    required this.interviewTypes,
+    required this.searchTextList,
   });
 
   AppState copyWith({
@@ -23,6 +27,8 @@ class AppState {
     UserInfoModel? userInfo,
     int? currentTabIndex,
     List<JobModel>? jobs,
+    List<String>? interviewTypes,
+    List<String>? searchTextList,
   }) {
     return AppState(
       isLoading: isLoading ?? this.isLoading,
@@ -30,6 +36,8 @@ class AppState {
       userInfo: userInfo ?? this.userInfo,
       currentTabIndex: currentTabIndex ?? 0, 
       jobs: jobs ?? this.jobs,
+      interviewTypes: interviewTypes ?? this.interviewTypes,
+      searchTextList: searchTextList ?? this.searchTextList,
     );
   }
 }
