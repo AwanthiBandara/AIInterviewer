@@ -1,5 +1,6 @@
 
 import 'package:aiinterviewer/models/job_model.dart';
+import 'package:aiinterviewer/models/question.dart';
 import 'package:aiinterviewer/models/user_info_mode.dart';
 
 class AppState {
@@ -10,6 +11,11 @@ class AppState {
   final List<JobModel> jobs;
   final List<String> interviewTypes;
   final List<String> searchTextList;
+  final List<Question> allQuestions;
+  final List<Question> questionsForInterview;
+  final int currentPlayingIndex;
+  final List<String> answers;
+  final List<String> questionIds;
 
   AppState({
     required this.isLoading,
@@ -19,6 +25,11 @@ class AppState {
     required this.jobs,
     required this.interviewTypes,
     required this.searchTextList,
+    required this.allQuestions,
+    required this.questionsForInterview,
+    required this.currentPlayingIndex,
+    required this.answers,
+    required this.questionIds,
   });
 
   AppState copyWith({
@@ -29,6 +40,11 @@ class AppState {
     List<JobModel>? jobs,
     List<String>? interviewTypes,
     List<String>? searchTextList,
+    List<Question>? allQuestions,
+    List<Question>? questionsForInterview,
+    int? currentPlayingIndex,
+    List<String>? answers,
+    List<String>? questionIds,
   }) {
     return AppState(
       isLoading: isLoading ?? this.isLoading,
@@ -38,6 +54,11 @@ class AppState {
       jobs: jobs ?? this.jobs,
       interviewTypes: interviewTypes ?? this.interviewTypes,
       searchTextList: searchTextList ?? this.searchTextList,
+      allQuestions: allQuestions ?? this.allQuestions,
+      questionsForInterview: questionsForInterview ?? this.questionsForInterview,
+      currentPlayingIndex: currentPlayingIndex ?? this.currentPlayingIndex,
+      answers: answers ?? this.answers,
+      questionIds: questionIds ?? this.questionIds,
     );
   }
 }

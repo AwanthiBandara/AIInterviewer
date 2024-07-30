@@ -7,6 +7,7 @@ import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_searchbar.dart';
 import 'package:aiinterviewer/widgets/new_job_bottomsheet.dart';
 import 'package:aiinterviewer/widgets/recruiter_view_job_bottomsheet.dart';
+import 'package:aiinterviewer/widgets/seeker_view_job_bottomsheet.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class SeekerPublicFeedScreen extends StatelessWidget {
 
   final TextEditingController _searchController = TextEditingController();
 
-    void _showNewJobBottomSheet(BuildContext context) {
+  void _showNewJobBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -31,7 +32,18 @@ class SeekerPublicFeedScreen extends StatelessWidget {
     );
   }
 
-
+    void _showSeekerViewJobBottomSheet(BuildContext context, JobModel job) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+      ),
+      builder: (BuildContext context) {
+        return SeekerViewJobBottomSheet(job: job);
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,29 +54,46 @@ class SeekerPublicFeedScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            BlocBuilder<AppCubit, AppState>(
+              builder: (context, state) {
+                return Row(
                   children: [
-                    BlocBuilder<AppCubit, AppState>(
-                      builder: (context, state) {
-                        final userInfo = state.userInfo;
-                        return Text(
-                          "Welcome ${userInfo.firstName},",
-                          style: const TextStyle(
-                            color: white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            letterSpacing: 1.6,
-                          ),
-                        );
-                      },
+                   Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: secondaryColor),
+                      image: DecorationImage(
+                        image: state.userInfo.profileUrl.isNotEmpty
+                            ? NetworkImage(state.userInfo.profileUrl)
+                            : const AssetImage('assets/images/default_profile.jpg') as ImageProvider,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    const Icon(Icons.notifications_rounded, color: white),
+                  ),
+
+                    SizedBox(width: 8),
+                    Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("${state.userInfo.firstName} ${state.userInfo.lastName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: greyTextColor),),
+                                const Text("HR Head at ABC Pvt Ltd, UK", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
+                              ],
+                            ),
+                            Spacer(),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(Icons.bookmark, color: greyTextColor, size: 22,),
+                      ],
+                    )
                   ],
-                ),
-            Text("Find your dream job\nsample text",
-                style: TextStyle(
-                    fontSize: 32, fontWeight: FontWeight.bold, color: white)),
+                );
+              },
+            ),
+            const SizedBox(height: 5),
+            Divider(color: secondaryColor, thickness: 0.4,),
             const SizedBox(height: 15),
             CustomSearchBar(
               controller: _searchController,
@@ -75,17 +104,17 @@ class SeekerPublicFeedScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "All published jobs",
+                  "All available jobs",
                   style: TextStyle(
                       color: white, fontWeight: FontWeight.w500, fontSize: 16),
                 ),
-                CustomButton(
-                  onTap: () => _showNewJobBottomSheet(context),
-                  buttonText: "Publish job",
-                  buttonType: ButtonType.Small,
-                  buttonColor: secondaryColor.withOpacity(0.3),
-                  textColor: secondaryColor,
-                ),
+                // CustomButton(
+                //   onTap: () => _showNewJobBottomSheet(context),
+                //   buttonText: "Publish job",
+                //   buttonType: ButtonType.Small,
+                //   buttonColor: secondaryColor.withOpacity(0.3),
+                //   textColor: secondaryColor,
+                // ),
               ],
             ),
             const SizedBox(height: 15),
@@ -103,15 +132,17 @@ class SeekerPublicFeedScreen extends StatelessWidget {
                     itemCount: sortedJobs.length,
                     itemBuilder: (context, index) {
                       final thisJob = sortedJobs[index];
-                      return JobCardRecruiter(
-                        job: thisJob,
+                      return GestureDetector(
+                        onTap: () => _showSeekerViewJobBottomSheet(context, thisJob),
+                        child: JobCardRecruiter(
+                          job: thisJob,
+                        ),
                       );
                     },
                   ),
                 );
               },
             ),
-
           ],
         ),
       ),
@@ -148,7 +179,8 @@ class JobCardRecruiter extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: greyTextColor,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
+                  border: Border.all(
+                      color: secondaryColor.withOpacity(0.2), width: 1.2),
                   image: const DecorationImage(
                     image: NetworkImage(
                         "https://penji.co/wp-content/uploads/2022/10/4.-OrSpeakIT.jpg"),
