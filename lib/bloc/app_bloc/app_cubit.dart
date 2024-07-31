@@ -42,9 +42,9 @@ class AppCubit extends Cubit<AppState> {
             allQuestions: [],
             questionsForInterview: [], currentPlayingIndex: 0, answers: [], questionIds: [], applicants: [])) {
     _loadUserInfo();
-    _loadJobs();
     _loadInterviewTypes();
     _loadSearchTextList();
+    _loadJobs();
   }
 
   void setCurrentTabIndex(int currentTabIndex) {
