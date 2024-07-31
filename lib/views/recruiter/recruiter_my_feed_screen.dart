@@ -13,10 +13,17 @@ import 'package:flutter/material.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RecruiterMyFeedScreen extends StatelessWidget {
+class RecruiterMyFeedScreen extends StatefulWidget {
   RecruiterMyFeedScreen({super.key});
 
+  @override
+  State<RecruiterMyFeedScreen> createState() => _RecruiterMyFeedScreenState();
+}
+
+class _RecruiterMyFeedScreenState extends State<RecruiterMyFeedScreen> {
   final TextEditingController _searchController = TextEditingController();
+
+  String searchTextLocal = "";
 
       void _showNewJobBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -80,7 +87,11 @@ class RecruiterMyFeedScreen extends StatelessWidget {
             CustomSearchBar(
               controller: _searchController,
               onChanged: (text) {
-                 context.read<AppCubit>().setSearchQuery(text);
+                setState(() {
+                  searchTextLocal = text;
+                });
+                // print(text);
+                //  context.read<AppCubit>().setSearchQuery(text);
               },
             ),
             const SizedBox(height: 15),
@@ -114,7 +125,7 @@ class RecruiterMyFeedScreen extends StatelessWidget {
                       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
                        final filteredJobs = filteredAndSortedJobs.where((job) {
-                  final query = state.searchQuery.toLowerCase();
+                  final query = searchTextLocal.toLowerCase();
                   return job.jobTitle.toLowerCase().contains(query) || job.jobDescription.toLowerCase().contains(query);
                 }).toList();
 
