@@ -1,9 +1,12 @@
+import 'package:aiinterviewer/bloc/app_bloc/app_cubit.dart';
+import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/helper/helper_functions.dart';
 import 'package:aiinterviewer/models/job_model.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_ranking_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RecruiterViewJobBottomSheet extends StatelessWidget {
   final JobModel job;
@@ -115,18 +118,22 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
                                   color: green,
                                   fontWeight: FontWeight.w500),
                             ),
-                            Container(
-                              height: 25,
-                              width: 85,
-                              decoration: BoxDecoration(
-                                  color: grayColor.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(4)),
-                              child: Center(
-                                child: Text(
-                                  "Edit",
-                                  style: TextStyle(color: greyTextColor),
-                                ),
-                              ),
+                            BlocBuilder<AppCubit, AppState>(
+                              builder: (context, state) {
+                                return job.createdBy == state.userInfo.uid ? Container(
+                                  height: 25,
+                                  width: 85,
+                                  decoration: BoxDecoration(
+                                      color: grayColor.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(4)),
+                                  child: Center(
+                                    child: Text(
+                                      "Edit",
+                                      style: TextStyle(color: greyTextColor),
+                                    ),
+                                  ),
+                                ) : SizedBox();
+                              },
                             ),
                           ],
                         ),
@@ -231,18 +238,29 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
               ),
             ),
           ),
-          CustomButton(
-            onTap: () {
-              Navigator.of(context)
-                  .pop(); // Close the bottom sheet after publishing
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => RecruiterRankingScreen(job: job)),
+          BlocBuilder<AppCubit, AppState>(
+            builder: (context, state) {
+              return CustomButton(
+                onTap: () {
+                  if (job.createdBy == state.userInfo.uid) {
+                    Navigator.of(context)
+                        .pop(); // Close the bottom sheet after publishing
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              RecruiterRankingScreen(job: job)),
+                    );
+                  } else {
+                    Navigator.of(context)
+                        .pop(); // Close the bottom sheet after publishing
+                  }
+                },
+                buttonText: job.createdBy == state.userInfo.uid
+                    ? "View Applicants"
+                    : "Back to home",
               );
-              
             },
-            buttonText: "View Applicants",
           ),
           SizedBox(height: 15),
         ],

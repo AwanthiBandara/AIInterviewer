@@ -14,7 +14,7 @@ import 'package:aiinterviewer/constants/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RecruiterPublicFeedScreen extends StatelessWidget {
-  RecruiterPublicFeedScreen({super.key}) {}
+  RecruiterPublicFeedScreen({super.key});
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -27,6 +27,19 @@ class RecruiterPublicFeedScreen extends StatelessWidget {
       ),
       builder: (BuildContext context) {
         return NewJobBottomSheet();
+      },
+    );
+  }
+
+       void _showRecruiterViewJobBottomSheet(BuildContext context, JobModel job) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+      ),
+      builder: (BuildContext context) {
+        return RecruiterViewJobBottomSheet(job: job);
       },
     );
   }
@@ -68,7 +81,9 @@ class RecruiterPublicFeedScreen extends StatelessWidget {
             const SizedBox(height: 15),
             CustomSearchBar(
               controller: _searchController,
-              onChanged: (String) {},
+              onChanged: (text) {
+                context.read<AppCubit>().setSearchQuery(text);
+              },
             ),
             const SizedBox(height: 15),
             Row(
@@ -95,16 +110,24 @@ class RecruiterPublicFeedScreen extends StatelessWidget {
                 List<JobModel> sortedJobs = List.from(state.jobs)
                   ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
+                  final filteredJobs = sortedJobs.where((job) {
+                  final query = state.searchQuery.toLowerCase();
+                  return job.jobTitle.toLowerCase().contains(query) || job.jobDescription.toLowerCase().contains(query);
+                }).toList();
+
                 return Expanded(
                   child: ListView.builder(
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
                     physics: const BouncingScrollPhysics(),
-                    itemCount: sortedJobs.length,
+                    itemCount: filteredJobs.length,
                     itemBuilder: (context, index) {
-                      final thisJob = sortedJobs[index];
-                      return JobCardRecruiter(
-                        job: thisJob,
+                      final thisJob = filteredJobs[index];
+                      return GestureDetector(
+                        onTap: () => _showRecruiterViewJobBottomSheet(context, thisJob),
+                        child: JobCardRecruiter(
+                          job: thisJob,
+                        ),
                       );
                     },
                   ),

@@ -31,6 +31,7 @@ class CustomSearchBar extends StatelessWidget {
           SizedBox(width: 8.0), // Add some spacing between the icon and the text field
           Expanded(
             child: TextField(
+              style: TextStyle(color: white),
               controller: controller,
               onChanged: onChanged, // Pass the onChanged callback
               decoration: InputDecoration(

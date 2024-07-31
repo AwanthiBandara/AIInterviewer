@@ -40,7 +40,7 @@ class AppCubit extends Cubit<AppState> {
             interviewTypes: [],
             searchTextList: [],
             allQuestions: [],
-            questionsForInterview: [], currentPlayingIndex: 0, answers: [], questionIds: [], applicants: [])) {
+            questionsForInterview: [], currentPlayingIndex: 0, answers: [], questionIds: [], applicants: [], searchQuery: '')) {
     _loadUserInfo();
     _loadInterviewTypes();
     _loadSearchTextList();
@@ -61,6 +61,10 @@ class AppCubit extends Cubit<AppState> {
 
   void resetAnswerAndIdsLists() {
     emit(state.copyWith(answers: [], questionIds: []));
+  }
+
+  void setSearchQuery(String query) {
+    emit(state.copyWith(searchQuery: query));
   }
 
   Future<void> _loadUserInfo() async {

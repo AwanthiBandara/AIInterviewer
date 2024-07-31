@@ -14,7 +14,7 @@ import 'package:aiinterviewer/constants/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RecruiterMyFeedScreen extends StatelessWidget {
-  RecruiterMyFeedScreen({super.key}) {}
+  RecruiterMyFeedScreen({super.key});
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -79,7 +79,9 @@ class RecruiterMyFeedScreen extends StatelessWidget {
             const SizedBox(height: 15),
             CustomSearchBar(
               controller: _searchController,
-              onChanged: (String) {},
+              onChanged: (text) {
+                 context.read<AppCubit>().setSearchQuery(text);
+              },
             ),
             const SizedBox(height: 15),
             Row(
@@ -111,14 +113,19 @@ class RecruiterMyFeedScreen extends StatelessWidget {
                       .toList()
                       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
+                       final filteredJobs = filteredAndSortedJobs.where((job) {
+                  final query = state.searchQuery.toLowerCase();
+                  return job.jobTitle.toLowerCase().contains(query) || job.jobDescription.toLowerCase().contains(query);
+                }).toList();
+
                     return Expanded(
                       child: ListView.builder(
                         shrinkWrap: true,
                         padding: EdgeInsets.zero,
                         physics: const BouncingScrollPhysics(),
-                        itemCount: filteredAndSortedJobs.length,
+                        itemCount: filteredJobs.length,
                         itemBuilder: (context, index) {
-                          final thisJob = filteredAndSortedJobs[index];
+                          final thisJob = filteredJobs[index];
                           return GestureDetector(
                             onTap: () => _showRecruiterViewJobBottomSheet(context, thisJob),
                             child: JobCardRecruiter(
