@@ -16,6 +16,7 @@ class AppState {
   final int currentPlayingIndex;
   final List<String> answers;
   final List<String> questionIds;
+  final List<Applicant> applicants;
 
   AppState({
     required this.isLoading,
@@ -30,6 +31,7 @@ class AppState {
     required this.currentPlayingIndex,
     required this.answers,
     required this.questionIds,
+    required this.applicants,
   });
 
   AppState copyWith({
@@ -45,6 +47,7 @@ class AppState {
     int? currentPlayingIndex,
     List<String>? answers,
     List<String>? questionIds,
+    List<Applicant>? applicants,
   }) {
     return AppState(
       isLoading: isLoading ?? this.isLoading,
@@ -59,6 +62,7 @@ class AppState {
       currentPlayingIndex: currentPlayingIndex ?? this.currentPlayingIndex,
       answers: answers ?? this.answers,
       questionIds: questionIds ?? this.questionIds,
+      applicants: applicants ?? this.applicants,
     );
   }
 }

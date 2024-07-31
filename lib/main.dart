@@ -6,6 +6,7 @@ import 'package:aiinterviewer/views/login_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
 import 'package:aiinterviewer/views/seeker/seeker_main_screen.dart'; // Import SeekerMainScreen
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase Auth
