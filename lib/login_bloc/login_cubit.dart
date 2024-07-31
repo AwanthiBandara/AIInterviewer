@@ -1,12 +1,20 @@
+import 'dart:convert';
+import 'package:aiinterviewer/models/user_info_mode.dart';
+import 'package:aiinterviewer/views/login_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
+import 'package:aiinterviewer/views/seeker/seeker_main_screen.dart';
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   LoginCubit() : super(LoginState(isLoading: false));
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> login({
     required String email,
@@ -24,10 +32,33 @@ class LoginCubit extends Cubit<LoginState> {
       // Check if the user is successfully authenticated
       User? user = userCredential.user;
       if (user != null) {
-        // Handle successful login (e.g., navigate to another screen)
-        emit(state.copyWith(isLoading: false));
-        // Example: Navigate to HomeScreen or another page after successful login
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RecruiterMainScreen()));
+        // Retrieve user information from Firestore
+        DocumentSnapshot<Map<String, dynamic>> userDoc = await _firestore.collection('users').doc(user.uid).get();
+
+        // Check if user document exists
+        if (userDoc.exists) {
+          UserInfoModel userInfo = UserInfoModel.fromJson(userDoc.data()!);
+
+
+          // Cache the user information in SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          String userInfoJson = jsonEncode(userInfo.toJson());
+          await prefs.setString('user_info', userInfoJson);
+
+          emit(state.copyWith(isLoading: false));
+
+          // Navigate to the appropriate screen based on user type
+          if (userInfo.userType == 'recruiter') {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => RecruiterMainScreen()));
+          } else if (userInfo.userType == 'job_seeker') {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SeekerMainScreen()));
+          } else {
+            // Handle unexpected user types or navigate to a default screen
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          }
+        } else {
+          emit(state.copyWith(isLoading: false, errorMessage: 'User document does not exist.'));
+        }
       }
     } on FirebaseAuthException catch (e) {
       // Handle login errors

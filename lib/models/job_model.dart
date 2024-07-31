@@ -80,15 +80,56 @@ class JobModel {
   }
 }
 
+// class Applicant {
+//   final String applicantId;
+//   final double average;
+//   final String howManyTimes;
+
+//   Applicant({
+//     required this.applicantId,
+//     required this.average,
+//     required this.howManyTimes,
+//   });
+
+//   // Convert Applicant to JSON
+//   Map<String, dynamic> toJson() {
+//     return {
+//       'applicantId': applicantId,
+//       'average': average,
+//       'howManyTimes': howManyTimes,
+//     };
+//   }
+
+//   factory Applicant.fromJson(Map<String, dynamic> json) {
+//     return Applicant(
+//       applicantId: json['applicantId'] ?? '',
+//       average: (json['average'] as num).toDouble(),
+//       howManyTimes: json['howManyTimes'] ?? '',
+//     );
+//   }
+// }
+
 class Applicant {
   final String applicantId;
   final double average;
   final String howManyTimes;
+  String firstName;
+  String lastName;
+  String profileUrl;
+  String gender;
+  String email;
+  String currentPosition;
 
   Applicant({
     required this.applicantId,
     required this.average,
     required this.howManyTimes,
+    this.firstName = '',
+    this.lastName = '',
+    this.profileUrl = '',
+    this.gender = '',
+    this.email = '',
+    this.currentPosition = '',
   });
 
   // Convert Applicant to JSON
@@ -97,6 +138,12 @@ class Applicant {
       'applicantId': applicantId,
       'average': average,
       'howManyTimes': howManyTimes,
+      'firstName': firstName,
+      'lastName': lastName,
+      'profileUrl': profileUrl,
+      'gender': gender,
+      'email': email,
+      'currentPosition': currentPosition,
     };
   }
 
@@ -105,6 +152,12 @@ class Applicant {
       applicantId: json['applicantId'] ?? '',
       average: (json['average'] as num).toDouble(),
       howManyTimes: json['howManyTimes'] ?? '',
+      firstName: json['firstName'] ?? '',
+      lastName: json['lastName'] ?? '',
+      profileUrl: json['profileUrl'] ?? '',
+      gender: json['gender'] ?? '',
+      email: json['email'] ?? '',
+      currentPosition: json['currentPosition'] ?? '',
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/login_bloc/login_cubit.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_signup_screen.dart';
 import 'package:aiinterviewer/views/seeker/seeker_signup_screen.dart';
+import 'package:aiinterviewer/views/user_type_selection_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
@@ -80,9 +81,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(builder: (context) => SeekerSignupScreen()),
+                        // );
+                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => SeekerSignupScreen()),
+                          MaterialPageRoute(builder: (context) => UserTypeSelectionScreen()),
                         );
                       },
                       child: RichText(

@@ -29,7 +29,7 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
 
   void _filterSearchText() {
     final query = _interviewTypeController.text.toLowerCase();
-    final allSearchTextList = context.read<AppCubit>().state.searchTextList;
+    final allSearchTextList = context.read<AppCubit>().state.interviewTypes;
     setState(() {
       filteredSearchTextList = allSearchTextList
           .where((i) => i.toLowerCase().contains(query))

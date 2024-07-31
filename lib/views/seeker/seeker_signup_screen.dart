@@ -49,6 +49,7 @@ void _signup() {
     currentPosition: _currentPositionController.text,
     birthday: _birthdayController.text, // Assuming you have a controller for birthday
     gender: _selectedGender,
+    profileImage: _profileImage,
     context: context,
   );
 }

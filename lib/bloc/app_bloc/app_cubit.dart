@@ -40,11 +40,11 @@ class AppCubit extends Cubit<AppState> {
             interviewTypes: [],
             searchTextList: [],
             allQuestions: [],
-            questionsForInterview: [], currentPlayingIndex: 0, answers: [], questionIds: [])) {
+            questionsForInterview: [], currentPlayingIndex: 0, answers: [], questionIds: [], applicants: [], searchQuery: '')) {
     _loadUserInfo();
-    _loadJobs();
     _loadInterviewTypes();
     _loadSearchTextList();
+    _loadJobs();
   }
 
   void setCurrentTabIndex(int currentTabIndex) {
@@ -61,6 +61,10 @@ class AppCubit extends Cubit<AppState> {
 
   void resetAnswerAndIdsLists() {
     emit(state.copyWith(answers: [], questionIds: []));
+  }
+
+  void setSearchQuery(String query) {
+    emit(state.copyWith(searchQuery: query));
   }
 
   Future<void> _loadUserInfo() async {
@@ -500,5 +504,39 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
 
   resetAnswerAndIdsLists();
 }
+
+ Future<void> loadApplicants(String jobId, List<Applicant> applicants) async {
+    emit(state.copyWith(isLoading: true));
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? cachedApplicants = prefs.getString('applicants_$jobId');
+
+    if (cachedApplicants != null) {
+      List<dynamic> applicantsJson = jsonDecode(cachedApplicants);
+      List<Applicant> cachedApplicantList = applicantsJson.map((json) => Applicant.fromJson(json)).toList();
+      emit(state.copyWith(applicants: cachedApplicantList, isLoading: false));
+    }
+
+    // Fetch fresh data from Firestore
+    List<Applicant> updatedApplicants = [];
+    for (var applicant in applicants) {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(applicant.applicantId).get();
+      if (userDoc.exists) {
+        var userData = userDoc.data() as Map<String, dynamic>;
+        applicant.firstName = userData['firstName'] ?? '';
+        applicant.lastName = userData['lastName'] ?? '';
+        applicant.profileUrl = userData['profileUrl'] ?? '';
+        applicant.gender = userData['gender'] ?? '';
+        applicant.email = userData['email'] ?? '';
+        applicant.currentPosition = userData['currentPosition'] ?? '';
+      }
+      updatedApplicants.add(applicant);
+    }
+
+    String updatedApplicantsJson = jsonEncode(updatedApplicants.map((e) => e.toJson()).toList());
+    await prefs.setString('applicants_$jobId', updatedApplicantsJson);
+
+    emit(state.copyWith(applicants: updatedApplicants, isLoading: false));
+  }
 
 }

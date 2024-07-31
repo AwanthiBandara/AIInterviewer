@@ -13,10 +13,17 @@ import 'package:flutter/material.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RecruiterMyFeedScreen extends StatelessWidget {
-  RecruiterMyFeedScreen({super.key}) {}
+class RecruiterMyFeedScreen extends StatefulWidget {
+  RecruiterMyFeedScreen({super.key});
 
+  @override
+  State<RecruiterMyFeedScreen> createState() => _RecruiterMyFeedScreenState();
+}
+
+class _RecruiterMyFeedScreenState extends State<RecruiterMyFeedScreen> {
   final TextEditingController _searchController = TextEditingController();
+
+  String searchTextLocal = "";
 
       void _showNewJobBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -79,7 +86,13 @@ class RecruiterMyFeedScreen extends StatelessWidget {
             const SizedBox(height: 15),
             CustomSearchBar(
               controller: _searchController,
-              onChanged: (String) {},
+              onChanged: (text) {
+                setState(() {
+                  searchTextLocal = text;
+                });
+                // print(text);
+                //  context.read<AppCubit>().setSearchQuery(text);
+              },
             ),
             const SizedBox(height: 15),
             Row(
@@ -111,14 +124,19 @@ class RecruiterMyFeedScreen extends StatelessWidget {
                       .toList()
                       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
+                       final filteredJobs = filteredAndSortedJobs.where((job) {
+                  final query = searchTextLocal.toLowerCase();
+                  return job.jobTitle.toLowerCase().contains(query) || job.jobDescription.toLowerCase().contains(query);
+                }).toList();
+
                     return Expanded(
                       child: ListView.builder(
                         shrinkWrap: true,
                         padding: EdgeInsets.zero,
                         physics: const BouncingScrollPhysics(),
-                        itemCount: filteredAndSortedJobs.length,
+                        itemCount: filteredJobs.length,
                         itemBuilder: (context, index) {
-                          final thisJob = filteredAndSortedJobs[index];
+                          final thisJob = filteredJobs[index];
                           return GestureDetector(
                             onTap: () => _showRecruiterViewJobBottomSheet(context, thisJob),
                             child: JobCardRecruiter(

@@ -175,7 +175,7 @@ class SeekerInterviewScreen extends StatelessWidget {
                 return CustomButton(
                   onTap: () async {
                     context.read<AppCubit>().setAnswer(
-                        _answerController.text, state.currentPlayingIndex.toString());
+                        _answerController.text, state.questionsForInterview[state.currentPlayingIndex].id.toString());
                     if (state.currentPlayingIndex < state.questionsForInterview.length - 1) {
                       context.read<AppCubit>().setCurrentPlayingIndex(
                           state.currentPlayingIndex + 1);
