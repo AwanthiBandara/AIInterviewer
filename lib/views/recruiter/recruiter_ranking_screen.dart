@@ -135,12 +135,22 @@ class _RecruiterRankingScreenState extends State<RecruiterRankingScreen> {
             BlocBuilder<AppCubit, AppState>(
               builder: (context, state) {
                 if (state.isLoading) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: Padding(
+                          padding: const EdgeInsets.only(top: 170),
+                          child: Text("Please wait...", style: TextStyle(color: greyTextColor),),
+                        ));
                 }
 
                 // Sort applicants by averageRating in descending order
                 List<Applicant> sortedApplicants = List.from(state.applicants);
                 sortedApplicants.sort((a, b) => b.average.compareTo(a.average));
+
+                      if(sortedApplicants.length == 0){
+                        return Center(child: Padding(
+                          padding: const EdgeInsets.only(top: 170),
+                          child: Text("No available applicants", style: TextStyle(color: greyTextColor),),
+                        ));
+                      }
 
                 return Expanded(
                   child: ListView.builder(
