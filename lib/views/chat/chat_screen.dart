@@ -40,18 +40,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
     return Scaffold(
       backgroundColor: primaryColor,
       appBar: AppBar(
         elevation: 2,
         backgroundColor: cardColor,
-        title: Text("Chat", style: TextStyle(color: Colors.white)),
-        centerTitle: true,
+        title: Text("Chat", style: TextStyle(color: greyTextColor, fontSize: 16)),
         leading: GestureDetector(
           onTap: () {
             Navigator.of(context).pop();
           },
-          child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          child: Icon(Icons.arrow_back_ios_new_rounded, color: greyTextColor),
         ),
       ),
       body: Column(
@@ -84,12 +85,12 @@ class _ChatScreenState extends State<ChatScreen> {
                         margin: EdgeInsets.symmetric(vertical: 4.0),
                         padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                         decoration: BoxDecoration(
-                          color: message.sender == userUid ? Colors.green[200] : Colors.blueGrey[200],
+                          color: message.sender == userUid ? secondaryColor.withOpacity(0.2) : inCardColor,
                           borderRadius: BorderRadius.circular(8.0),
                         ),
                         child: Text(
                           message.message,
-                          style: TextStyle(fontSize: 16.0),
+                          style: TextStyle(fontSize: 16.0, color: greyTextColor),
                         ),
                       ),
                     );
@@ -98,26 +99,32 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+          Container(
+            color: inCardColor,
+            padding: EdgeInsets.only(bottom: keyboardHeight),
             child: Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: _messageController,
+                    style: TextStyle(color: white),
+                    cursorColor: white,
                     decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-                      hintText: 'Type a message',
+                      hintText: 'Type your message...',
+                      hintStyle: TextStyle(color: grayColor),
+                      filled: true,
+                      fillColor: inCardColor,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide.none,
                       ),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                     ),
                   ),
                 ),
                 SizedBox(width: 8.0),
-                IconButton(
-                  icon: Icon(Icons.send, color: Colors.blueGrey),
-                  onPressed: () {
+                GestureDetector(
+                  onTap: () {
                     final messageText = _messageController.text.trim();
                     if (messageText.isNotEmpty) {
                       final message = MessageModel(
@@ -140,6 +147,10 @@ class _ChatScreenState extends State<ChatScreen> {
                           });
                     }
                   },
+                  child: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    child: Icon(Icons.send, color: white),
+                  ),
                 ),
               ],
             ),

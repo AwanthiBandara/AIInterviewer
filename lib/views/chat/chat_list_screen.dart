@@ -1,4 +1,5 @@
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
+import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,7 @@ class ChatListScreen extends StatelessWidget {
         backgroundColor: cardColor,
         title: Text("Chat", style: TextStyle(color: white, fontSize: 16)),
         centerTitle: true,
-        leading: Icon(Icons.arrow_back_ios_new_rounded, color: greyTextColor),
+        automaticallyImplyLeading: false,
       ),
       body: BlocBuilder<AppCubit, AppState>(
         builder: (context, state) {
@@ -52,19 +53,34 @@ class ChatListScreen extends StatelessWidget {
                   final data = chatDoc.data() as Map<String, dynamic>?;
 
                   if (data != null && data.containsKey('data')) {
-                    final List<dynamic> messageList = data['data'] as List<dynamic>;
+                    final List<dynamic> messageList =
+                        data['data'] as List<dynamic>;
                     final lastMessage = messageList.isNotEmpty
-                        ? (messageList.last as Map<String, dynamic>)['message'] ?? ''
+                        ? (messageList.last
+                                as Map<String, dynamic>)['message'] ??
+                            ''
                         : 'No messages yet';
 
                     // Convert dateTime field to a DateTime object
                     final lastMessageTime = messageList.isNotEmpty
-                        ? (messageList.last as Map<String, dynamic>)['dateTime'] is Timestamp
-                            ? (messageList.last as Map<String, dynamic>)['dateTime']?.toDate()?.toLocal()?.toString() ?? ''
-                            : DateTime.tryParse((messageList.last as Map<String, dynamic>)['dateTime'] as String)?.toLocal()?.toString() ?? ''
+                        ? (messageList.last as Map<String, dynamic>)['dateTime']
+                                is Timestamp
+                            ? (messageList.last
+                                        as Map<String, dynamic>)['dateTime']
+                                    ?.toDate()
+                                    ?.toLocal()
+                                    ?.toString() ??
+                                ''
+                            : DateTime.tryParse((messageList.last
+                                            as Map<String, dynamic>)['dateTime']
+                                        as String)
+                                    ?.toLocal()
+                                    ?.toString() ??
+                                ''
                         : 'No messages yet';
 
-                    final username = 'User ${index + 1}'; // Replace with actual username if available
+                    final username =
+                        'User ${index + 1}'; // Replace with actual username if available
 
                     return GestureDetector(
                       onTap: () {
@@ -72,7 +88,8 @@ class ChatListScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ChatScreen(
-                              chatDocumentId: chatDoc.id, // Pass the chat document ID
+                              chatDocumentId:
+                                  chatDoc.id, // Pass the chat document ID
                             ),
                           ),
                         );
@@ -81,7 +98,8 @@ class ChatListScreen extends StatelessWidget {
                         username: username,
                         lastMessage: lastMessage,
                         lastMessageTime: lastMessageTime,
-                        profileImageUrl: 'https://picsum.photos/536/354', // Placeholder image URL
+                        profileImageUrl:
+                            'https://picsum.photos/536/354', // Placeholder image URL
                       ),
                     );
                   } else {
@@ -116,10 +134,7 @@ class ChatListItem extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        color: secondaryColor.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(8),
-      ),
+      color: Colors.transparent,
       child: Row(
         children: [
           CircleAvatar(
@@ -136,7 +151,10 @@ class ChatListItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(username,
-                        style: TextStyle(color: greyTextColor, fontSize: 18)),
+                        style: TextStyle(
+                            color: greyTextColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500)),
                     Text(lastMessageTime,
                         style: TextStyle(color: greyTextColor, fontSize: 14)),
                   ],

@@ -43,8 +43,10 @@ class _RecruiterProfileScreenState extends State<RecruiterProfileScreen> {
     return Scaffold(
       backgroundColor: primaryColor,
       appBar: AppBar(
-        backgroundColor: inCardColor,
-        title: const Text('Profile'),
+        backgroundColor: cardColor,
+        centerTitle: true,
+        title: const Text('Profile', style: TextStyle(fontSize: 16),),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
