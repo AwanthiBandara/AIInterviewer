@@ -1,6 +1,7 @@
 import 'package:aiinterviewer/bloc/app_bloc/app_cubit.dart';
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
 import 'package:aiinterviewer/constants/colors.dart';
+import 'package:aiinterviewer/views/chat/chat_list_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_my_feed_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_profile_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_public_feed_screen.dart';
@@ -13,6 +14,7 @@ class RecruiterMainScreen extends StatelessWidget {
   final List<Widget> _screens = [
     RecruiterPublicFeedScreen(),
     RecruiterMyFeedScreen(),
+    ChatListScreen(),
     const RecruiterProfileScreen(),
   ];
 
@@ -39,6 +41,10 @@ class RecruiterMainScreen extends StatelessWidget {
               BottomNavigationBarItem(
                 icon: Icon(Icons.forum),
                 label: 'My',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.chat),
+                label: 'Chat',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),

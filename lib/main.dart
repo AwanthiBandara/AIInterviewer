@@ -1,4 +1,5 @@
 import 'package:aiinterviewer/bloc/app_bloc/app_cubit.dart';
+import 'package:aiinterviewer/bloc/chat_bloc/chat_cubit.dart';
 import 'package:aiinterviewer/bloc/signup_bloc/signup_cubit.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/login_bloc/login_cubit.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => SignupCubit()),
         BlocProvider(create: (context) => LoginCubit()),
         BlocProvider(create: (context) => AppCubit()),
+        BlocProvider(create: (context) => ChatCubit()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
