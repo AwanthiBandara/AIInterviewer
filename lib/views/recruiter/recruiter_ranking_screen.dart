@@ -149,69 +149,91 @@ class _RecruiterRankingScreenState extends State<RecruiterRankingScreen> {
                       itemCount: sortedApplicants.length,
                       itemBuilder: (context, index) {
                         Applicant applicant = sortedApplicants[index];
-                        return Container(
-                          margin: EdgeInsets.only(bottom: 12),
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                          // height: 100,
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: cardColor),
-                          child: Column(
-                            children: [
-                              Row(
+                        return Stack(
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(bottom: 12),
+                              padding:
+                                  EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                              // height: 100,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: cardColor),
+                              child: Column(
                                 children: [
-                                  Container(
-                                    height: 65,
-                                    width: 65,
-                                    decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: inCardColor,
-                                        image: DecorationImage(
-                                            image: NetworkImage(applicant.profileUrl),
-                                            fit: BoxFit.cover)),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  Row(
                                     children: [
-                                      Text(
-                                        '${applicant.firstName} ${applicant.lastName}',
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500,
-                                            color: greyTextColor),
+                                      Container(
+                                        height: 65,
+                                        width: 65,
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: inCardColor,
+                                            image: DecorationImage(
+                                                image: NetworkImage(applicant.profileUrl),
+                                                fit: BoxFit.cover)),
                                       ),
-                                      Text(
-                                        applicant.currentPosition,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            letterSpacing: 1,
-                                            color: greyTextColor),
-                                      ),
-                                      const Text(
-                                        "Ranked at 1st | Success Percentage 78.89%",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: cardTextColor),
-                                      ),
-                                      SizedBox(
-                                        height: 2,
-                                      ),
-                                      Text(
-                                        "${applicant.email} | +94 77 123 1234",
-                                        style: TextStyle(
-                                            fontSize: 12, color: greyTextColor),
+                                      SizedBox(width: 10),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${applicant.firstName} ${applicant.lastName}',
+                                            style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500,
+                                                color: greyTextColor),
+                                          ),
+                                          Text(
+                                            applicant.currentPosition,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                letterSpacing: 1,
+                                                color: greyTextColor),
+                                          ),
+                                          const Text(
+                                            "Ranked at 1st | Success Percentage 78.89%",
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w500,
+                                                color: cardTextColor),
+                                          ),
+                                          SizedBox(
+                                            height: 2,
+                                          ),
+                                          Text(
+                                            "${applicant.email} | +94 77 123 1234",
+                                            style: TextStyle(
+                                                fontSize: 12, color: greyTextColor),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
+                            ),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: green.withOpacity(0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  "${index + 1}",
+                                  style: TextStyle(
+                                    color: green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       }),
                 );
