@@ -8,9 +8,14 @@ import 'package:aiinterviewer/views/recruiter/recruiter_public_feed_screen.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RecruiterMainScreen extends StatelessWidget {
+class RecruiterMainScreen extends StatefulWidget {
   RecruiterMainScreen({super.key});
 
+  @override
+  State<RecruiterMainScreen> createState() => _RecruiterMainScreenState();
+}
+
+class _RecruiterMainScreenState extends State<RecruiterMainScreen> {
   final List<Widget> _screens = [
     RecruiterPublicFeedScreen(),
     RecruiterMyFeedScreen(),
@@ -20,6 +25,16 @@ class RecruiterMainScreen extends StatelessWidget {
 
   void _onItemTapped(BuildContext context, int index) {
     context.read<AppCubit>().setCurrentTabIndex(index);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read<AppCubit>().loadUserInfo();
+    context.read<AppCubit>().loadInterviewTypes();
+    context.read<AppCubit>().loadSearchTextList();
+    context.read<AppCubit>().loadJobs();
   }
 
   @override

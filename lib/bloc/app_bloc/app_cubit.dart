@@ -41,10 +41,10 @@ class AppCubit extends Cubit<AppState> {
             searchTextList: [],
             allQuestions: [],
             questionsForInterview: [], currentPlayingIndex: 0, answers: [], questionIds: [], applicants: [], searchQuery: '')) {
-    _loadUserInfo();
-    _loadInterviewTypes();
-    _loadSearchTextList();
-    _loadJobs();
+    loadUserInfo();
+    loadInterviewTypes();
+    loadSearchTextList();
+    loadJobs();
   }
 
   void setCurrentTabIndex(int currentTabIndex) {
@@ -67,7 +67,7 @@ class AppCubit extends Cubit<AppState> {
     emit(state.copyWith(searchQuery: query));
   }
 
-  Future<void> _loadUserInfo() async {
+  Future<void> loadUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userInfoJson = prefs.getString('user_info');
     if (userInfoJson != null) {
@@ -158,7 +158,7 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> _loadJobs() async {
+  Future<void> loadJobs() async {
     emit(state.copyWith(isLoading: true));
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -225,7 +225,7 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> _loadInterviewTypes() async {
+  Future<void> loadInterviewTypes() async {
     emit(state.copyWith(isLoading: true));
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -269,7 +269,7 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> _loadSearchTextList() async {
+  Future<void> loadSearchTextList() async {
     emit(state.copyWith(isLoading: true));
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();

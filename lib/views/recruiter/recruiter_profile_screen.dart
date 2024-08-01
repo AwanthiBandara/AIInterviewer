@@ -22,6 +22,9 @@ class _RecruiterProfileScreenState extends State<RecruiterProfileScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove('user_info');
       await prefs.remove('jobs');
+      await prefs.remove('interview_types');
+      await prefs.remove('searchTextList');
+      await prefs.remove('cached_jobs');
 
       await FirebaseAuth.instance.signOut();
 
