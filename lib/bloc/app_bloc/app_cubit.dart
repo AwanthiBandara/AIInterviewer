@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
 import 'package:aiinterviewer/constants/data.dart';
@@ -8,6 +9,7 @@ import 'package:aiinterviewer/models/user_info_mode.dart';
 import 'package:aiinterviewer/views/seeker/seeker_interview_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -537,6 +539,87 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
     await prefs.setString('applicants_$jobId', updatedApplicantsJson);
 
     emit(state.copyWith(applicants: updatedApplicants, isLoading: false));
+  }
+
+
+  Future<String> _uploadCompanyImage(String uid, File companyImage) async {
+    try {
+      String filePath = 'companyLogos/$uid.png';
+      await FirebaseStorage.instance.ref(filePath).putFile(companyImage);
+      String downloadUrl = await FirebaseStorage.instance.ref(filePath).getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      throw Exception('Error uploading image: $e');
+    }
+  }
+
+   Future<void> updateProfile({
+    required String companyName,
+    required String companyLocation,
+    required String firstName,
+    required String lastName,
+    required String currentPosition,
+    required String companySize,
+    required String aboutCompany,
+    File? companyLogoFile,
+  }) async {
+    try {
+      emit(state.copyWith(isLoading: true));
+
+      String? companyLogoUrl = state.userInfo.companyLogoUrl;
+
+      // Upload company logo if a new file is provided
+     String? companyLogoFileUrl;
+      if (companyLogoFile != null) {
+        companyLogoFileUrl = await _uploadCompanyImage(state.userInfo.uid, companyLogoFile);
+      }
+
+      // Create a map of the updated profile data
+      final updatedUserInfo = {
+        'companyName': companyName,
+        'companyLocation': companyLocation,
+        'firstName': firstName,
+        'lastName': lastName,
+        'currentPosition': currentPosition,
+        'companySize': companySize,
+        'aboutCompany': aboutCompany,
+        'companyLogoUrl': companyLogoFileUrl,
+      };
+
+      // Update the Firestore document
+      final userDocRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(state.userInfo.uid);
+      await userDocRef.update(updatedUserInfo);
+
+      // Update local state and SharedPreferences
+      final updatedUserInfoModel = UserInfoModel(
+        uid: state.userInfo.uid,
+        email: state.userInfo.email,
+        companyName: companyName,
+        companyLocation: companyLocation,
+        firstName: firstName,
+        lastName: lastName,
+        currentPosition: currentPosition,
+        companySize: companySize,
+        aboutCompany: aboutCompany,
+        companyLogoUrl: companyLogoUrl, birthday: Timestamp.fromDate(DateTime.now()), gender: '', profileUrl: '', userType: state.userInfo.userType,
+      );
+
+      // Save the updated user info to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      String userInfoJson = jsonEncode(updatedUserInfoModel.toJson());
+        await prefs.setString('user_info', userInfoJson);
+
+      emit(state.copyWith(
+        userInfo: updatedUserInfoModel,
+        isLoading: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false));
+      // Handle error appropriately, e.g., show a snackbar or log the error
+      throw e;
+    }
   }
 
 }
