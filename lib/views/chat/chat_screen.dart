@@ -16,6 +16,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   late String userUid;
 
   @override
@@ -32,16 +33,22 @@ class _ChatScreenState extends State<ChatScreen> {
         .doc(widget.chatDocumentId)
         .snapshots()
         .map((snapshot) {
-          final data = snapshot.data() as Map<String, dynamic>?;
-          final messages = data?['data'] as List<dynamic>? ?? [];
-          return messages.cast<Map<String, dynamic>>();
-        });
+      final data = snapshot.data() as Map<String, dynamic>?;
+      final messages = data?['data'] as List<dynamic>? ?? [];
+      return messages.cast<Map<String, dynamic>>();
+    });
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-
     return Scaffold(
       backgroundColor: primaryColor,
       appBar: AppBar(
@@ -70,8 +77,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
 
                 final messages = snapshot.data ?? [];
+                WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
                 return ListView.builder(
+                  controller: _scrollController,
                   padding: EdgeInsets.all(8.0),
                   physics: BouncingScrollPhysics(),
                   itemCount: messages.length,
@@ -101,7 +110,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Container(
             color: inCardColor,
-            padding: EdgeInsets.only(bottom: keyboardHeight),
             child: Row(
               children: [
                 Expanded(
@@ -115,7 +123,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       filled: true,
                       fillColor: inCardColor,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide.none,
                       ),
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -137,25 +144,22 @@ class _ChatScreenState extends State<ChatScreen> {
                           .collection('chats')
                           .doc(widget.chatDocumentId)
                           .update({
-                            'data': FieldValue.arrayUnion([message.toMap()])
-                          })
-                          .then((_) {
-                            _messageController.clear();
-                          })
-                          .catchError((error) {
-                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $error')));
-                          });
+                        'data': FieldValue.arrayUnion([message.toMap()])
+                      }).then((_) {
+                        _messageController.clear();
+                        _scrollToBottom();
+                      }).catchError((error) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $error')));
+                      });
                     }
                   },
                   child: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    child: Icon(Icons.send, color: white),
-                  ),
-                ),
-              ],
+                    backgroundColor: inCardColor,
+                    child: Icon(Icons.send, color: white)),
+              ),
+            ],
             ),
-          ),
-        ],
+          )],
       ),
     );
   }

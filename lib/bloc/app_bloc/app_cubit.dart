@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
 import 'package:aiinterviewer/constants/data.dart';
@@ -8,6 +9,7 @@ import 'package:aiinterviewer/models/user_info_mode.dart';
 import 'package:aiinterviewer/views/seeker/seeker_interview_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,10 +43,10 @@ class AppCubit extends Cubit<AppState> {
             searchTextList: [],
             allQuestions: [],
             questionsForInterview: [], currentPlayingIndex: 0, answers: [], questionIds: [], applicants: [], searchQuery: '')) {
-    _loadUserInfo();
-    _loadInterviewTypes();
-    _loadSearchTextList();
-    _loadJobs();
+    loadUserInfo();
+    loadInterviewTypes();
+    loadSearchTextList();
+    loadJobs();
   }
 
   void setCurrentTabIndex(int currentTabIndex) {
@@ -67,7 +69,7 @@ class AppCubit extends Cubit<AppState> {
     emit(state.copyWith(searchQuery: query));
   }
 
-  Future<void> _loadUserInfo() async {
+  Future<void> loadUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? userInfoJson = prefs.getString('user_info');
     if (userInfoJson != null) {
@@ -158,7 +160,7 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> _loadJobs() async {
+   Future<void> loadJobs() async {
     emit(state.copyWith(isLoading: true));
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -180,30 +182,43 @@ class AppCubit extends Cubit<AppState> {
   }
 
   Future<void> _fetchJobsFromFirestore() async {
-    try {
-      // Fetch jobs from Firestore
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await _firestore.collection('jobs').get();
+  try {
+    // Fetch jobs from Firestore
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _firestore.collection('jobs').get();
 
-      // Convert Firestore documents to JobModel instances
-      List<JobModel> jobs = querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        return JobModel.fromJson(data);
-      }).toList();
+    List<JobModel> jobs = [];
+    for (var doc in querySnapshot.docs) {
+      final data = doc.data();
+      final job = JobModel.fromJson(data);
 
-      // Cache the fetched jobs
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-          'jobs', jsonEncode(jobs.map((job) => job.toJson()).toList()));
+      // Fetch user info for the job's createdBy field
+      final userDoc = await _firestore.collection('users').doc(job.createdBy).get();
+      final userData = userDoc.data();
+      final userInfo = userData != null ? UserInfoModel.fromJson(userData) : null;
 
-      // Emit state with fetched jobs and loading set to false
-      emit(state.copyWith(jobs: jobs, isLoading: false));
-    } catch (e) {
-      // Emit state with error message and loading set to false
-      emit(state.copyWith(
-          isLoading: false, error: 'Failed to fetch jobs from Firestore: $e'));
+      // Append user info to the job model
+      final updatedJob = job.copyWith(createdUser: userInfo);
+
+      jobs.add(updatedJob);
     }
+
+    // Cache the fetched jobs
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'jobs', jsonEncode(jobs.map((job) => job.toJson()).toList()));
+
+    // Emit state with fetched jobs and loading set to false
+    emit(state.copyWith(jobs: jobs, isLoading: false));
+  } catch (e) {
+    print(e);
+    // Emit state with error message and loading set to false
+    emit(state.copyWith(
+        isLoading: false, error: 'Failed to fetch jobs from Firestore: $e'));
   }
+}
+
+
 
   Future<void> updateUserInfo(String firstName, String lastName) async {
     final currentState = state;
@@ -225,7 +240,7 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> _loadInterviewTypes() async {
+  Future<void> loadInterviewTypes() async {
     emit(state.copyWith(isLoading: true));
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -269,7 +284,7 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> _loadSearchTextList() async {
+  Future<void> loadSearchTextList() async {
     emit(state.copyWith(isLoading: true));
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -308,6 +323,8 @@ class AppCubit extends Cubit<AppState> {
     required String jobTitle,
     required String jobDescription,
     required String interviewType,
+    required String salaryRange,
+    required String jobType,
   }) async {
     emit(state.copyWith(isLoading: true));
     try {
@@ -327,6 +344,8 @@ class AppCubit extends Cubit<AppState> {
         'createdBy': createdBy,
         'interviewType': interviewType,
         'applicants': [], // Initially empty array
+        'salaryRange': salaryRange, 
+        'jobType': jobType, 
       });
 
       JobModel newJob = JobModel(
@@ -336,7 +355,7 @@ class AppCubit extends Cubit<AppState> {
         createdAt: Timestamp.now(),
         createdBy: createdBy,
         applicants: [],
-        interviewType: interviewType,
+        interviewType: interviewType, salaryRange: salaryRange, jobType: jobType,
       );
 
       await docRef.update({'jobId': docRef.id});
@@ -537,6 +556,87 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
     await prefs.setString('applicants_$jobId', updatedApplicantsJson);
 
     emit(state.copyWith(applicants: updatedApplicants, isLoading: false));
+  }
+
+
+  Future<String> _uploadCompanyImage(String uid, File companyImage) async {
+    try {
+      String filePath = 'companyLogos/$uid.png';
+      await FirebaseStorage.instance.ref(filePath).putFile(companyImage);
+      String downloadUrl = await FirebaseStorage.instance.ref(filePath).getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      throw Exception('Error uploading image: $e');
+    }
+  }
+
+   Future<void> updateProfile({
+    required String companyName,
+    required String companyLocation,
+    required String firstName,
+    required String lastName,
+    required String currentPosition,
+    required String companySize,
+    required String aboutCompany,
+    File? companyLogoFile,
+  }) async {
+    try {
+      emit(state.copyWith(isLoading: true));
+
+      String? companyLogoUrl = state.userInfo.companyLogoUrl;
+
+      // Upload company logo if a new file is provided
+     String? companyLogoFileUrl;
+      if (companyLogoFile != null) {
+        companyLogoFileUrl = await _uploadCompanyImage(state.userInfo.uid, companyLogoFile);
+      }
+
+      // Create a map of the updated profile data
+      final updatedUserInfo = {
+        'companyName': companyName,
+        'companyLocation': companyLocation,
+        'firstName': firstName,
+        'lastName': lastName,
+        'currentPosition': currentPosition,
+        'companySize': companySize,
+        'aboutCompany': aboutCompany,
+        'companyLogoUrl': companyLogoFileUrl,
+      };
+
+      // Update the Firestore document
+      final userDocRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(state.userInfo.uid);
+      await userDocRef.update(updatedUserInfo);
+
+      // Update local state and SharedPreferences
+      final updatedUserInfoModel = UserInfoModel(
+        uid: state.userInfo.uid,
+        email: state.userInfo.email,
+        companyName: companyName,
+        companyLocation: companyLocation,
+        firstName: firstName,
+        lastName: lastName,
+        currentPosition: currentPosition,
+        companySize: companySize,
+        aboutCompany: aboutCompany,
+        companyLogoUrl: companyLogoUrl, birthday: Timestamp.fromDate(DateTime.now()), gender: '', profileUrl: '', userType: state.userInfo.userType,
+      );
+
+      // Save the updated user info to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      String userInfoJson = jsonEncode(updatedUserInfoModel.toJson());
+        await prefs.setString('user_info', userInfoJson);
+
+      emit(state.copyWith(
+        userInfo: updatedUserInfoModel,
+        isLoading: false,
+      ));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false));
+      // Handle error appropriately, e.g., show a snackbar or log the error
+      throw e;
+    }
   }
 
 }

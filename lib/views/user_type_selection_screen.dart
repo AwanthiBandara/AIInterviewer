@@ -26,10 +26,10 @@ class _UserTypeSelectionScreenState extends State<UserTypeSelectionScreen> {
         elevation: 0,
         leading: GestureDetector(
             onTap: () {
-               Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
             },
             child: const Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -69,12 +69,17 @@ class _UserTypeSelectionScreenState extends State<UserTypeSelectionScreen> {
                           height: 110,
                           width: 110,
                           decoration: BoxDecoration(
+                              image: const DecorationImage(
+                                image: AssetImage(
+                                    "assets/images/seeker.png"),
+                                fit: BoxFit.cover,
+                              ),
                               color: cardColor,
                               borderRadius: BorderRadius.circular(15),
                               border: Border.all(
                                   color: userType == "job_seeker"
                                       ? secondaryColor
-                                      : Colors.transparent)),
+                                      : Colors.transparent, width: 3)),
                         ),
                         const SizedBox(height: 5),
                         const Text(
@@ -100,11 +105,16 @@ class _UserTypeSelectionScreenState extends State<UserTypeSelectionScreen> {
                           width: 110,
                           decoration: BoxDecoration(
                             color: cardColor,
+                            image: const DecorationImage(
+                                image: AssetImage(
+                                    "assets/images/recruiter.png"),
+                                fit: BoxFit.cover,
+                              ),
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(
                                 color: userType == "recruiter"
                                     ? secondaryColor
-                                    : Colors.transparent),
+                                    : Colors.transparent, width: 3),
                           ),
                         ),
                         const SizedBox(height: 5),

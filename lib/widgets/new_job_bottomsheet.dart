@@ -3,6 +3,7 @@ import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/helper/helper_functions.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_dropdown.dart';
+import 'package:aiinterviewer/widgets/custom_dropdown_by_array.dart';
 import 'package:aiinterviewer/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,10 +17,15 @@ class NewJobBottomSheet extends StatefulWidget {
 
 class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
   final TextEditingController _jobTitleController = TextEditingController();
-  final TextEditingController _jobDescriptionController = TextEditingController();
-  final TextEditingController _interviewTypeController = TextEditingController();
+  final TextEditingController _jobDescriptionController =
+      TextEditingController();
+  final TextEditingController _interviewTypeController =
+      TextEditingController();
+  final TextEditingController _salaryRangeController =
+      TextEditingController();
 
   List<String> filteredSearchTextList = [];
+  String jobType = "Remote";
 
   @override
   void initState() {
@@ -90,7 +96,8 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                   onTap: () {
                     Navigator.of(context).pop();
                   },
-                  child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.transparent, size: 20),
+                  child: Icon(Icons.arrow_back_ios_new_rounded,
+                      color: Colors.transparent, size: 20),
                 ),
                 Text(
                   "New job",
@@ -120,8 +127,12 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                     SizedBox(height: 25),
                     Column(
                       children: [
-                        CustomDropdown(controller: _interviewTypeController, onChanged: (x) {}),
-                        SizedBox(height: 8,),
+                        CustomDropdown(
+                            controller: _interviewTypeController,
+                            onChanged: (x) {}),
+                        SizedBox(
+                          height: 8,
+                        ),
                         if (filteredSearchTextList.isNotEmpty)
                           Container(
                             height: 300,
@@ -134,11 +145,13 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                                 physics: const BouncingScrollPhysics(),
                                 itemCount: filteredSearchTextList.length,
                                 itemBuilder: (context, index) {
-                                  final suggestion = filteredSearchTextList[index];
+                                  final suggestion =
+                                      filteredSearchTextList[index];
                                   return ListTile(
                                     title: Text(
                                       suggestion,
-                                      style: const TextStyle(color: greyTextColor),
+                                      style:
+                                          const TextStyle(color: greyTextColor),
                                     ),
                                     onTap: () => _onSuggestionTap(suggestion),
                                   );
@@ -158,6 +171,43 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                       backgroundColor: inCardColor,
                     ),
                     SizedBox(height: 15),
+                    CustomDropdownByArray(
+                      items: ['Remote', 'Hybrid', 'On-Site'],
+                      selectedValue:
+                          'Remote', // Must match exactly one item in the list
+                      hintText: 'Select job type',
+                      overlineText: 'Job type',
+                      backgroundColor: inCardColor,
+                      textColor: white,
+                      hintColor: grayColor,
+                      overlineTextColor: white,
+                      onChanged: (value) {
+                        setState(() {
+                          jobType = value??"";
+                        });
+                      },
+                    ),
+                    // CustomDropdownByArray(items: ["items", "ssss", "ssss"], hintText: "hintText", overlineText: "overlineText", onChanged: (p0) {
+                    //   print(p0);
+                    // },),
+                    // CustomTextField(
+                    //   controller: _jobTitleController,
+                    //   hintText: "Enter job type here",
+                    //   overlineText: "Job type",
+                    //   minLines: 1,
+                    //   maxLines: 1,
+                    //   backgroundColor: inCardColor,
+                    // ),
+                    SizedBox(height: 15),
+                    CustomTextField(
+                      controller: _salaryRangeController,
+                      hintText: "Enter salary range here",
+                      overlineText: "Salary range",
+                      minLines: 1,
+                      maxLines: 1,
+                      backgroundColor: inCardColor,
+                    ),
+                    SizedBox(height: 15),
                     CustomTextField(
                       controller: _jobDescriptionController,
                       hintText: "Enter job description here",
@@ -166,7 +216,6 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                       maxLines: null,
                       backgroundColor: inCardColor,
                     ),
-                    SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -174,14 +223,18 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
             CustomButton(
               onTap: () {
                 context.read<AppCubit>().createJob(
-                  jobTitle: _jobTitleController.text,
-                  jobDescription: _jobDescriptionController.text, 
-                  interviewType: _interviewTypeController.text,
-                );
-                Navigator.of(context).pop(); // Close the bottom sheet after publishing
+                      jobTitle: _jobTitleController.text,
+                      jobDescription: _jobDescriptionController.text,
+                      interviewType: _interviewTypeController.text,
+                      salaryRange: _salaryRangeController.text,
+                      jobType: jobType,
+                    );
+                Navigator.of(context)
+                    .pop(); // Close the bottom sheet after publishing
               },
               buttonText: "Publish",
-              enabled: _jobTitleController.text.isNotEmpty && _jobDescriptionController.text.isNotEmpty,
+              enabled: _jobTitleController.text.isNotEmpty &&
+                  _jobDescriptionController.text.isNotEmpty,
             ),
             SizedBox(height: 15),
           ],
@@ -189,6 +242,4 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
       ),
     );
   }
-
-  
 }

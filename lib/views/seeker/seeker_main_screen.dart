@@ -10,9 +10,14 @@ import 'package:aiinterviewer/views/seeker/seeker_public_feed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SeekerMainScreen extends StatelessWidget {
+class SeekerMainScreen extends StatefulWidget {
   SeekerMainScreen({super.key});
 
+  @override
+  State<SeekerMainScreen> createState() => _SeekerMainScreenState();
+}
+
+class _SeekerMainScreenState extends State<SeekerMainScreen> {
   final List<Widget> _screens = [
     SeekerPublicFeedScreen(),
     SeekerMyFeedScreen(),
@@ -21,6 +26,16 @@ class SeekerMainScreen extends StatelessWidget {
 
   void _onItemTapped(BuildContext context, int index) {
     context.read<AppCubit>().setCurrentTabIndex(index);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    context.read<AppCubit>().loadUserInfo();
+    context.read<AppCubit>().loadInterviewTypes();
+    context.read<AppCubit>().loadSearchTextList();
+    context.read<AppCubit>().loadJobs();
   }
 
   @override

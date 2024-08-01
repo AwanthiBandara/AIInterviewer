@@ -1,4 +1,5 @@
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
+import 'package:aiinterviewer/helper/helper_functions.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -53,34 +54,21 @@ class ChatListScreen extends StatelessWidget {
                   final data = chatDoc.data() as Map<String, dynamic>?;
 
                   if (data != null && data.containsKey('data')) {
-                    final List<dynamic> messageList =
-                        data['data'] as List<dynamic>;
+                    final List<dynamic> messageList = data['data'] as List<dynamic>;
                     final lastMessage = messageList.isNotEmpty
-                        ? (messageList.last
-                                as Map<String, dynamic>)['message'] ??
-                            ''
+                        ? (messageList.last as Map<String, dynamic>)['message'] ?? ''
                         : 'No messages yet';
 
-                    // Convert dateTime field to a DateTime object
+                    // Convert dateTime field to a DateTime object and use timeAgo function
                     final lastMessageTime = messageList.isNotEmpty
-                        ? (messageList.last as Map<String, dynamic>)['dateTime']
-                                is Timestamp
-                            ? (messageList.last
-                                        as Map<String, dynamic>)['dateTime']
-                                    ?.toDate()
-                                    ?.toLocal()
-                                    ?.toString() ??
-                                ''
-                            : DateTime.tryParse((messageList.last
-                                            as Map<String, dynamic>)['dateTime']
-                                        as String)
-                                    ?.toLocal()
-                                    ?.toString() ??
-                                ''
+                        ? (messageList.last as Map<String, dynamic>)['dateTime'] is Timestamp
+                            ? timeAgo((messageList.last as Map<String, dynamic>)['dateTime'].toDate())
+                            : DateTime.tryParse((messageList.last as Map<String, dynamic>)['dateTime'] as String) != null
+                                ? timeAgo(DateTime.parse((messageList.last as Map<String, dynamic>)['dateTime'] as String))
+                                : 'No messages yet'
                         : 'No messages yet';
 
-                    final username =
-                        'User ${index + 1}'; // Replace with actual username if available
+                    final username = 'User ${index + 1}'; // Replace with actual username if available
 
                     return GestureDetector(
                       onTap: () {
@@ -88,8 +76,7 @@ class ChatListScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => ChatScreen(
-                              chatDocumentId:
-                                  chatDoc.id, // Pass the chat document ID
+                              chatDocumentId: chatDoc.id, // Pass the chat document ID
                             ),
                           ),
                         );
@@ -98,8 +85,7 @@ class ChatListScreen extends StatelessWidget {
                         username: username,
                         lastMessage: lastMessage,
                         lastMessageTime: lastMessageTime,
-                        profileImageUrl:
-                            'https://picsum.photos/536/354', // Placeholder image URL
+                        profileImageUrl: 'https://picsum.photos/536/354', // Placeholder image URL
                       ),
                     );
                   } else {
