@@ -19,11 +19,15 @@ class RecruiterSignupScreen extends StatefulWidget {
 class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _currentPositionController = TextEditingController();
+  final TextEditingController _currentPositionController =
+      TextEditingController();
   final TextEditingController _companyNameController = TextEditingController();
-  final TextEditingController _companyLocationController = TextEditingController();
+  final TextEditingController _companyLocationController =
+      TextEditingController();
   final TextEditingController _companySizeController = TextEditingController();
   final TextEditingController _aboutCompanyController = TextEditingController();
 
@@ -42,17 +46,18 @@ class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
 
   void _signup() {
     context.read<SignupCubit>().recruiterSignup(
-      email: _emailController.text,
-      password: _passwordController.text,
-      firstName: _firstNameController.text,
-      lastName: _lastNameController.text,
-      currentPosition: _currentPositionController.text,
-      companyName: _companyNameController.text,
-      companyLocation: _companyLocationController.text,
-      companySize: _companySizeController.text,
-      aboutCompany: _aboutCompanyController.text,
-      companyImage: _companyImage, context: context,
-    );
+          email: _emailController.text,
+          password: _passwordController.text,
+          firstName: _firstNameController.text,
+          lastName: _lastNameController.text,
+          currentPosition: _currentPositionController.text,
+          companyName: _companyNameController.text,
+          companyLocation: _companyLocationController.text,
+          companySize: _companySizeController.text,
+          aboutCompany: _aboutCompanyController.text,
+          companyImage: _companyImage,
+          context: context,
+        );
   }
 
   @override
@@ -70,7 +75,10 @@ class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
             onTap: () {
               Navigator.pop(context);
             },
-            child: const Icon(Icons.arrow_back_ios_new_rounded, color: grayColor,),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: grayColor,
+            ),
           ),
         ),
         body: BlocListener<SignupCubit, SignupState>(
@@ -83,7 +91,8 @@ class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
             } else if (state.errorMessage != null) {
               // Show error message
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Sign up failed: ${state.errorMessage}')),
+                SnackBar(
+                    content: Text('Sign up failed: ${state.errorMessage}')),
               );
             }
           },
@@ -105,11 +114,11 @@ class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
                             color: cardColor,
                             borderRadius: BorderRadius.circular(12),
                             image: _companyImage != null
-                              ? DecorationImage(
-                                  image: FileImage(_companyImage!),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
+                                ? DecorationImage(
+                                    image: FileImage(_companyImage!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                           ),
                           child: _companyImage == null
                               ? Center(
@@ -131,14 +140,14 @@ class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
                   ),
                   const SizedBox(height: 24),
                   CustomTextField(
-                    controller: _companyNameController, 
-                    hintText: 'ABC Pvt Ltd', 
+                    controller: _companyNameController,
+                    hintText: 'ABC Pvt Ltd',
                     overlineText: 'Enter your company name',
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
-                    controller: _companyLocationController, 
-                    hintText: 'City, Country', 
+                    controller: _companyLocationController,
+                    hintText: 'City, Country',
                     overlineText: 'Enter your company location',
                   ),
                   const SizedBox(height: 18),
@@ -146,16 +155,16 @@ class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
                     children: [
                       Expanded(
                         child: CustomTextField(
-                          controller: _firstNameController, 
-                          hintText: 'First Name', 
+                          controller: _firstNameController,
+                          hintText: 'First Name',
                           overlineText: 'Enter your first name',
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: CustomTextField(
-                          controller: _lastNameController, 
-                          hintText: 'Last Name', 
+                          controller: _lastNameController,
+                          hintText: 'Last Name',
                           overlineText: 'Enter your last name',
                         ),
                       ),
@@ -163,71 +172,89 @@ class _RecruiterSignupScreenState extends State<RecruiterSignupScreen> {
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
-                    controller: _emailController, 
-                    hintText: 'Email', 
+                    controller: _emailController,
+                    hintText: 'Email',
                     overlineText: 'Enter email',
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
-                    controller: _passwordController, 
-                    hintText: 'Password', 
+                    controller: _passwordController,
+                    hintText: 'Password',
                     overlineText: 'Enter password',
+                    obscureText: true,
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
-                    controller: _currentPositionController, 
-                    hintText: 'Current Position', 
+                    controller: _confirmPasswordController,
+                    hintText: 'Confirm Password',
+                    overlineText: 'Enter password agin',
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 18),
+                  CustomTextField(
+                    controller: _currentPositionController,
+                    hintText: 'Current Position',
                     overlineText: 'Enter your current position',
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
-                    controller: _companySizeController, 
-                    hintText: '0 - 10', 
+                    controller: _companySizeController,
+                    hintText: '0 - 10',
                     overlineText: 'Company size',
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
-                    controller: _aboutCompanyController, 
-                    hintText: 'Type here', 
+                    controller: _aboutCompanyController,
+                    hintText: 'Type here',
                     overlineText: 'About Company',
                   ),
                   const SizedBox(height: 32),
                   BlocBuilder<SignupCubit, SignupState>(
                     builder: (context, state) {
                       return state.isLoading
-                        ? CircularProgressIndicator()
-                        : CustomButton(
-                            onTap: _signup,
-                            buttonText: "Register",
-                          );
+                          ? CircularProgressIndicator()
+                          : CustomButton(
+                              onTap: () {
+                                if (_passwordController.text ==
+                                    _confirmPasswordController.text) {
+                                  _signup();
+                                } else {}
+                              },
+                              buttonText: "Register",
+                            );
                     },
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                       GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginScreen()),
-                        );
-                      },
-                      child: RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "Already have an account? ",
-                              style: TextStyle(color: grayColor, fontSize: 14),
-                            ),
-                            TextSpan(
-                              text: "Login",
-                              style: TextStyle(color: greyTextColor, fontSize: 14, fontWeight: FontWeight.w500),
-                            ),
-                          ],
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginScreen()),
+                          );
+                        },
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Already have an account? ",
+                                style:
+                                    TextStyle(color: grayColor, fontSize: 14),
+                              ),
+                              TextSpan(
+                                text: "Login",
+                                style: TextStyle(
+                                    color: greyTextColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
                     ],
                   ),
                   const SizedBox(height: 30),
