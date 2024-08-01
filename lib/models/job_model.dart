@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:aiinterviewer/models/user_info_mode.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class JobModel {
@@ -12,6 +13,7 @@ class JobModel {
   final String interviewType;
   String? firstName; // Changed to non-final
   String? lastName;  // Changed to non-final
+  UserInfoModel? createdUser;  // Changed to non-final
 
   JobModel({
     required this.jobId,
@@ -23,6 +25,7 @@ class JobModel {
     required this.interviewType,
      this.firstName,
     this.lastName,
+    this.createdUser,
   });
 
   factory JobModel.fromJson(Map<String, dynamic> map) {
@@ -38,6 +41,9 @@ class JobModel {
       interviewType: map['interviewType'],
       firstName: map['firstName'] as String?, // Handle new fields
       lastName: map['lastName'] as String?,  // Handle new fields
+      createdUser: map['createdUser'] != null
+          ? UserInfoModel.fromJson(map['createdUser'])
+          : null,  // Handle potential null value
     );
   }
 
@@ -52,6 +58,7 @@ class JobModel {
       'interviewType': interviewType,
       'firstName': firstName, // Serialize new fields
       'lastName': lastName,   // Serialize new fields
+      'createdUser': createdUser?.toJson(),  // Handle potential null value
     };
   }
 
@@ -65,6 +72,7 @@ class JobModel {
     String? interviewType,
     String? firstName,
     String? lastName,
+    UserInfoModel? createdUser,
   }) {
     return JobModel(
       jobId: jobId ?? this.jobId,
@@ -76,6 +84,7 @@ class JobModel {
       interviewType: interviewType ?? this.interviewType,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
+      createdUser: createdUser ?? this.createdUser,
     );
   }
 }

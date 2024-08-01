@@ -160,7 +160,7 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> loadJobs() async {
+   Future<void> loadJobs() async {
     emit(state.copyWith(isLoading: true));
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -182,30 +182,43 @@ class AppCubit extends Cubit<AppState> {
   }
 
   Future<void> _fetchJobsFromFirestore() async {
-    try {
-      // Fetch jobs from Firestore
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await _firestore.collection('jobs').get();
+  try {
+    // Fetch jobs from Firestore
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _firestore.collection('jobs').get();
 
-      // Convert Firestore documents to JobModel instances
-      List<JobModel> jobs = querySnapshot.docs.map((doc) {
-        final data = doc.data();
-        return JobModel.fromJson(data);
-      }).toList();
+    List<JobModel> jobs = [];
+    for (var doc in querySnapshot.docs) {
+      final data = doc.data();
+      final job = JobModel.fromJson(data);
 
-      // Cache the fetched jobs
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-          'jobs', jsonEncode(jobs.map((job) => job.toJson()).toList()));
+      // Fetch user info for the job's createdBy field
+      final userDoc = await _firestore.collection('users').doc(job.createdBy).get();
+      final userData = userDoc.data();
+      final userInfo = userData != null ? UserInfoModel.fromJson(userData) : null;
 
-      // Emit state with fetched jobs and loading set to false
-      emit(state.copyWith(jobs: jobs, isLoading: false));
-    } catch (e) {
-      // Emit state with error message and loading set to false
-      emit(state.copyWith(
-          isLoading: false, error: 'Failed to fetch jobs from Firestore: $e'));
+      // Append user info to the job model
+      final updatedJob = job.copyWith(createdUser: userInfo);
+
+      jobs.add(updatedJob);
     }
+
+    // Cache the fetched jobs
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        'jobs', jsonEncode(jobs.map((job) => job.toJson()).toList()));
+
+    // Emit state with fetched jobs and loading set to false
+    emit(state.copyWith(jobs: jobs, isLoading: false));
+  } catch (e) {
+    print(e);
+    // Emit state with error message and loading set to false
+    emit(state.copyWith(
+        isLoading: false, error: 'Failed to fetch jobs from Firestore: $e'));
   }
+}
+
+
 
   Future<void> updateUserInfo(String firstName, String lastName) async {
     final currentState = state;

@@ -182,19 +182,20 @@ class JobCardRecruiter extends StatelessWidget {
           Row(
             children: [
               Container(
-                height: 60,
-                width: 60,
-                decoration: BoxDecoration(
-                  color: greyTextColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                        "https://penji.co/wp-content/uploads/2022/10/4.-OrSpeakIT.jpg"),
-                    fit: BoxFit.cover,
-                  ),
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                color: greyTextColor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
+                image: DecorationImage(
+                  image: job.createdUser?.companyLogoUrl != null && job.createdUser!.companyLogoUrl!.isNotEmpty
+                      ? NetworkImage(job.createdUser!.companyLogoUrl!)
+                      : const AssetImage('assets/images/company_placeholder.png') as ImageProvider,
+                  fit: BoxFit.cover,
                 ),
               ),
+            ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,8 +207,8 @@ class JobCardRecruiter extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         color: white),
                   ),
-                  const Text(
-                    "HR Head at ABC Pvt Ltd, UK",
+                   Text(
+                    "${job.createdUser?.companyName}, ${job.createdUser?.companyLocation}",
                     style: TextStyle(
                         fontSize: 14,
                         color: white,
