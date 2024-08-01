@@ -1,5 +1,6 @@
 import 'package:aiinterviewer/bloc/app_bloc/app_cubit.dart';
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
+import 'package:aiinterviewer/bloc/chat_bloc/chat_cubit.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/views/chat/chat_list_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_my_feed_screen.dart';
@@ -35,6 +36,7 @@ class _RecruiterMainScreenState extends State<RecruiterMainScreen> {
     context.read<AppCubit>().loadInterviewTypes();
     context.read<AppCubit>().loadSearchTextList();
     context.read<AppCubit>().loadJobs();
+    context.read<ChatCubit>().loadMyAllChats(context);
   }
 
   @override

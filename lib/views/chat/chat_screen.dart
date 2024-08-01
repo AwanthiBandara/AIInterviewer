@@ -7,8 +7,10 @@ import 'package:aiinterviewer/constants/colors.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatDocumentId;
+  final String username;
+  final String profileUrl;
 
-  const ChatScreen({super.key, required this.chatDocumentId});
+  const ChatScreen({super.key, required this.chatDocumentId, required this.username, required this.profileUrl});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -54,7 +56,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         elevation: 2,
         backgroundColor: cardColor,
-        title: Text("Chat", style: TextStyle(color: greyTextColor, fontSize: 16)),
+        title: Text("${widget.username}", style: TextStyle(color: greyTextColor, fontSize: 16)),
         leading: GestureDetector(
           onTap: () {
             Navigator.of(context).pop();

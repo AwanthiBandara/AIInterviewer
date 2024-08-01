@@ -1,12 +1,12 @@
-import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
-import 'package:aiinterviewer/helper/helper_functions.dart';
-import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:aiinterviewer/bloc/app_bloc/app_cubit.dart';
-import 'package:aiinterviewer/views/chat/chat_screen.dart';
+import 'package:aiinterviewer/bloc/chat_bloc/chat_cubit.dart';
 import 'package:aiinterviewer/constants/colors.dart';
+import 'package:aiinterviewer/helper/helper_functions.dart';
+import 'package:aiinterviewer/models/user_info_mode.dart';
+import 'package:aiinterviewer/views/chat/chat_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatListScreen extends StatelessWidget {
   const ChatListScreen({super.key});
@@ -18,13 +18,14 @@ class ChatListScreen extends StatelessWidget {
       appBar: AppBar(
         elevation: 2,
         backgroundColor: cardColor,
-        title: Text("Chat", style: TextStyle(color: white, fontSize: 16)),
-        centerTitle: true,
+        title: Text("Chats", style: TextStyle(color: white, fontSize: 16)),
+        centerTitle: false,
         automaticallyImplyLeading: false,
       ),
-      body: BlocBuilder<AppCubit, AppState>(
+      body: BlocBuilder<ChatCubit, ChatState>(
         builder: (context, state) {
-          final currentUserId = state.userInfo.uid;
+          UserInfoModel userInfo = BlocProvider.of<AppCubit>(context).state.userInfo;
+          final currentUserId = userInfo.uid;
 
           return StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance.collection('chats').snapshots(),
@@ -55,38 +56,62 @@ class ChatListScreen extends StatelessWidget {
 
                   if (data != null && data.containsKey('data')) {
                     final List<dynamic> messageList = data['data'] as List<dynamic>;
-                    final lastMessage = messageList.isNotEmpty
+                    final latestMessage = messageList.isNotEmpty
                         ? (messageList.last as Map<String, dynamic>)['message'] ?? ''
                         : 'No messages yet';
 
-                    // Convert dateTime field to a DateTime object and use timeAgo function
-                    final lastMessageTime = messageList.isNotEmpty
-                        ? (messageList.last as Map<String, dynamic>)['dateTime'] is Timestamp
-                            ? timeAgo((messageList.last as Map<String, dynamic>)['dateTime'].toDate())
-                            : DateTime.tryParse((messageList.last as Map<String, dynamic>)['dateTime'] as String) != null
-                                ? timeAgo(DateTime.parse((messageList.last as Map<String, dynamic>)['dateTime'] as String))
-                                : 'No messages yet'
+                    final latestMessageTime = messageList.isNotEmpty
+                        ? timeAgo(
+                            (messageList.last as Map<String, dynamic>)['dateTime'] is Timestamp
+                                ? (messageList.last as Map<String, dynamic>)['dateTime'].toDate()
+                                : DateTime.parse((messageList.last as Map<String, dynamic>)['dateTime'] as String),
+                          )
                         : 'No messages yet';
 
-                    final username = 'User ${index + 1}'; // Replace with actual username if available
+                    // Extract other user ID from the chat document ID
+                    final otherUserId = chatDoc.id.split('_').firstWhere((id) => id != currentUserId);
 
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatScreen(
-                              chatDocumentId: chatDoc.id, // Pass the chat document ID
+                    return FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance.collection('users').doc(otherUserId).get(),
+                      builder: (context, userSnapshot) {
+                        if (userSnapshot.connectionState == ConnectionState.waiting) {
+                          return Container(); // Return an empty container while waiting for user data
+                        }
+
+                        if (userSnapshot.hasError) {
+                          return Center(child: Text('Error: ${userSnapshot.error}'));
+                        }
+
+                        final userData = userSnapshot.data?.data() as Map<String, dynamic>?;
+
+                        if (userData != null) {
+                          final username = '${userData['firstName']} ${userData['lastName']}';
+                          final profileImageUrl = userData['profileUrl'] ?? 'https://picsum.photos/536/354';
+
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChatScreen(
+                                    chatDocumentId: chatDoc.id, // Pass the chat document ID
+                                    username: username,
+                                    profileUrl: profileImageUrl,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: ChatListItem(
+                              username: username,
+                              lastMessage: latestMessage,
+                              lastMessageTime: latestMessageTime,
+                              profileImageUrl: profileImageUrl,
                             ),
-                          ),
-                        );
+                          );
+                        } else {
+                          return Container(); // Handle empty user data case
+                        }
                       },
-                      child: ChatListItem(
-                        username: username,
-                        lastMessage: lastMessage,
-                        lastMessageTime: lastMessageTime,
-                        profileImageUrl: 'https://picsum.photos/536/354', // Placeholder image URL
-                      ),
                     );
                   } else {
                     return Container(); // Handle empty data case
