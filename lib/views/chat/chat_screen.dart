@@ -16,6 +16,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   late String userUid;
 
   @override
@@ -35,6 +36,14 @@ class _ChatScreenState extends State<ChatScreen> {
       final data = snapshot.data() as Map<String, dynamic>?;
       final messages = data?['data'] as List<dynamic>? ?? [];
       return messages.cast<Map<String, dynamic>>();
+    });
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
     });
   }
 
@@ -68,8 +77,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 }
 
                 final messages = snapshot.data ?? [];
+                WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
                 return ListView.builder(
+                  controller: _scrollController,
                   padding: EdgeInsets.all(8.0),
                   physics: BouncingScrollPhysics(),
                   itemCount: messages.length,
@@ -136,6 +147,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         'data': FieldValue.arrayUnion([message.toMap()])
                       }).then((_) {
                         _messageController.clear();
+                        _scrollToBottom();
                       }).catchError((error) {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $error')));
                       });
@@ -144,11 +156,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: CircleAvatar(
                     backgroundColor: inCardColor,
                     child: Icon(Icons.send, color: white)),
-                ),
-              ],
+              ),
+            ],
             ),
-          ),
-        ],
+          )],
       ),
     );
   }
