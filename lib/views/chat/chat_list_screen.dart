@@ -19,7 +19,7 @@ class ChatListScreen extends StatelessWidget {
         elevation: 2,
         backgroundColor: cardColor,
         title: Text("Chats", style: TextStyle(color: white, fontSize: 16)),
-        centerTitle: false,
+        centerTitle: true,
         automaticallyImplyLeading: false,
       ),
       body: BlocBuilder<ChatCubit, ChatState>(
