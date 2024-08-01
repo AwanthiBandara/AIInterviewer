@@ -204,7 +204,10 @@ setState(() {
                     controller: _aboutCompanyController,
                     hintText: 'Type here',
                     overlineText: 'About Company',
+                    maxLines: 4,
+                    minLines: 4,
                   ),
+                  const SizedBox(height: 18),
                   CustomButton(
                     onTap: () {
                        context.read<AppCubit>().updateProfile(

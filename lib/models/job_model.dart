@@ -14,6 +14,8 @@ class JobModel {
   String? firstName; // Changed to non-final
   String? lastName;  // Changed to non-final
   UserInfoModel? createdUser;  // Changed to non-final
+  final String salaryRange;
+  final String jobType;
 
   JobModel({
     required this.jobId,
@@ -26,6 +28,8 @@ class JobModel {
      this.firstName,
     this.lastName,
     this.createdUser,
+    required this.salaryRange,
+    required this.jobType,
   });
 
   factory JobModel.fromJson(Map<String, dynamic> map) {
@@ -44,6 +48,8 @@ class JobModel {
       createdUser: map['createdUser'] != null
           ? UserInfoModel.fromJson(map['createdUser'])
           : null,  // Handle potential null value
+          salaryRange: map['salaryRange'],
+          jobType: map['jobType'],
     );
   }
 
@@ -59,6 +65,8 @@ class JobModel {
       'firstName': firstName, // Serialize new fields
       'lastName': lastName,   // Serialize new fields
       'createdUser': createdUser?.toJson(),  // Handle potential null value
+      'salaryRange': salaryRange,
+      'jobType': jobType,
     };
   }
 
@@ -73,6 +81,8 @@ class JobModel {
     String? firstName,
     String? lastName,
     UserInfoModel? createdUser,
+    String? salaryRange,
+    String? jobType,
   }) {
     return JobModel(
       jobId: jobId ?? this.jobId,
@@ -85,6 +95,8 @@ class JobModel {
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       createdUser: createdUser ?? this.createdUser,
+      salaryRange: salaryRange ?? this.salaryRange,
+      jobType: jobType ?? this.jobType,
     );
   }
 }

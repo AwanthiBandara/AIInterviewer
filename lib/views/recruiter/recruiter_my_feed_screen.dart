@@ -56,7 +56,7 @@ class _RecruiterMyFeedScreenState extends State<RecruiterMyFeedScreen> {
     return Scaffold(
       backgroundColor: primaryColor,
       body: Container(
-        padding: EdgeInsets.only(left: 15, right: 15, top: 40),
+        padding: EdgeInsets.only(left: 10, right: 10, top: 40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -215,8 +215,8 @@ class JobCardRecruiter extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         letterSpacing: 1),
                   ),
-                  const Text(
-                    "Remote | USD85,000/yr - USD95,000/yr",
+                  Text(
+                     "${job.jobType} | ${job.salaryRange}",
                     style: TextStyle(
                         fontSize: 12, letterSpacing: 0.8, color: white),
                   ),

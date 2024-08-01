@@ -323,6 +323,8 @@ class AppCubit extends Cubit<AppState> {
     required String jobTitle,
     required String jobDescription,
     required String interviewType,
+    required String salaryRange,
+    required String jobType,
   }) async {
     emit(state.copyWith(isLoading: true));
     try {
@@ -342,6 +344,8 @@ class AppCubit extends Cubit<AppState> {
         'createdBy': createdBy,
         'interviewType': interviewType,
         'applicants': [], // Initially empty array
+        'salaryRange': salaryRange, 
+        'jobType': jobType, 
       });
 
       JobModel newJob = JobModel(
@@ -351,7 +355,7 @@ class AppCubit extends Cubit<AppState> {
         createdAt: Timestamp.now(),
         createdBy: createdBy,
         applicants: [],
-        interviewType: interviewType,
+        interviewType: interviewType, salaryRange: salaryRange, jobType: jobType,
       );
 
       await docRef.update({'jobId': docRef.id});
