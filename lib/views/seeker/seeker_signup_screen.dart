@@ -168,12 +168,14 @@ class _SeekerSignupScreenState extends State<SeekerSignupScreen> {
                     controller: _passwordController,
                     hintText: 'Password',
                     overlineText: 'Enter password',
+                    obscureText: true,
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
                     controller: _confirmPasswordController,
                     hintText: 'Confirm Password',
                     overlineText: 'Enter password again',
+                    obscureText: true,
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
