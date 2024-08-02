@@ -215,6 +215,7 @@ class _SeekerProfileScreenState extends State<SeekerProfileScreen> {
                         birthday: _birthday!,
                         gender: _selectedGender,
                         profileImage: _profileImage,
+                        context: context,
                       );
                     },
                     buttonText: "Update",

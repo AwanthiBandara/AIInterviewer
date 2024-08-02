@@ -59,7 +59,7 @@ class ChatCubit extends Cubit<ChatState> {
             otherUser: otherUser,
             messages: messages,
             lastMessage: chatData != null ? chatData['lastMessage'] ?? '' : '',
-            lastMessageTime: chatData != null && chatData['lastMessageTime'] != null ? chatData['lastMessageTime'] as Timestamp : Timestamp.now(),
+            // lastMessageTime: chatData != null && chatData['lastMessageTime'] != null ? chatData['lastMessageTime'] as Timestamp : Timestamp.now(),
           );
 
           chats.add(chat);
@@ -85,7 +85,7 @@ Future<void> createChat(String chatId, String applicantId) async {
     otherUser: otherUser,
     messages: [],
     lastMessage: '',
-    lastMessageTime: Timestamp.now(),
+    // lastMessageTime: Timestamp.now(),
   );
 
   // Save the new chat to the database

@@ -10,6 +10,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image/image.dart' as img;
+
 
 part 'signup_state.dart';
 
@@ -101,10 +107,35 @@ class SignupCubit extends Cubit<SignupState> {
       throw Exception('Error uploading image: $e');
     }
   }
-  Future<String> _uploadProfileImage(String uid, File profileImage) async {
+
+//   Future<String> _uploadProfileImage(String uid, File profileImage) async {
+//   try {
+//     String filePath = 'profileImages/$uid.png';
+//     await FirebaseStorage.instance.ref(filePath).putFile(profileImage);
+//     String downloadUrl = await FirebaseStorage.instance.ref(filePath).getDownloadURL();
+//     return downloadUrl;
+//   } catch (e) {
+//     throw Exception('Error uploading image: $e');
+//   }
+// }
+
+Future<String> _uploadProfileImage(String uid, File profileImage) async {
   try {
+    // Load the image
+    img.Image? image = img.decodeImage(profileImage.readAsBytesSync());
+    
+    // Resize the image to a smaller size
+    img.Image resizedImage = img.copyResize(image!, width: 100); // Resize to 100 pixels wide (maintaining aspect ratio)
+    
+    // Compress the image to reduce file size
+    List<int> compressedImage = img.encodeJpg(resizedImage, quality: 25); // Adjust quality as needed
+    
+    // Convert to Uint8List
+    Uint8List uint8list = Uint8List.fromList(compressedImage);
+
+    // Upload the compressed image
     String filePath = 'profileImages/$uid.png';
-    await FirebaseStorage.instance.ref(filePath).putFile(profileImage);
+    await FirebaseStorage.instance.ref(filePath).putData(uint8list);
     String downloadUrl = await FirebaseStorage.instance.ref(filePath).getDownloadURL();
     return downloadUrl;
   } catch (e) {
