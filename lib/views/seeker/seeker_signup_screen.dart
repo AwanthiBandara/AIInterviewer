@@ -6,6 +6,7 @@ import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_datepicker.dart';
 import 'package:aiinterviewer/widgets/custom_datepicker_new.dart';
+import 'package:aiinterviewer/widgets/custom_dropdown_by_array.dart';
 import 'package:aiinterviewer/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -185,6 +186,23 @@ class _SeekerSignupScreenState extends State<SeekerSignupScreen> {
                       });
                     },
                   ),
+                  const SizedBox(height: 18),
+                   CustomDropdownByArray(
+                      items: ['Male', 'Female'],
+                      selectedValue:
+                          'Male', // Must match exactly one item in the list
+                      hintText: 'Select gender',
+                      overlineText: 'Gender',
+                      backgroundColor: cardColor,
+                      textColor: white,
+                      hintColor: grayColor,
+                      overlineTextColor: white,
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedGender = value??"";
+                        });
+                      },
+                    ),
                   //    CustomDatePicker(onChanged: (value){
                   //   setState(() {
                   //     _birthday = value;
@@ -192,10 +210,8 @@ class _SeekerSignupScreenState extends State<SeekerSignupScreen> {
                   //   });
                   //   print(value.toString());
                   // }),
-                  const SizedBox(height: 18),
-
-                  const SizedBox(height: 18),
                   const SizedBox(height: 32),
+
                   BlocBuilder<SignupCubit, SignupState>(
                     builder: (context, state) {
                       return state.isLoading
