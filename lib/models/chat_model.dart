@@ -7,14 +7,14 @@ class ChatModel {
   final UserInfoModel otherUser;
   final List<MessageModel> messages;
   final String lastMessage;
-  final Timestamp lastMessageTime;
+  // final Timestamp lastMessageTime;
 
   ChatModel({
     required this.id,
     required this.otherUser,
     required this.messages,
     required this.lastMessage,
-    required this.lastMessageTime,
+    // required this.lastMessageTime,
   });
 
   factory ChatModel.fromMap(Map<String, dynamic> map) {
@@ -25,9 +25,9 @@ class ChatModel {
           .map((msgMap) => MessageModel.fromMap(msgMap as Map<String, dynamic>))
           .toList(),
       lastMessage: map['lastMessage'] ?? '',
-      lastMessageTime: map['lastMessageTime'] is Timestamp
-          ? map['lastMessageTime'] as Timestamp
-          : Timestamp.fromDate(DateTime.parse(map['lastMessageTime'])),
+      // lastMessageTime: map['lastMessageTime'] is Timestamp
+      //     ? map['lastMessageTime'] as Timestamp
+      //     : Timestamp.fromDate(DateTime.parse(map['lastMessageTime'])),
     );
   }
 
@@ -37,7 +37,7 @@ class ChatModel {
       'otherUser': otherUser.toJson(),
       'messages': messages.map((msg) => msg.toMap()).toList(),
       'lastMessage': lastMessage,
-      'lastMessageTime': lastMessageTime.toDate().toIso8601String(),
+      // 'lastMessageTime': lastMessageTime.toDate().toIso8601String(),
     };
   }
 
@@ -46,14 +46,14 @@ class ChatModel {
     UserInfoModel? otherUser,
     List<MessageModel>? messages,
     String? lastMessage,
-    Timestamp? lastMessageTime,
+    // Timestamp? lastMessageTime,
   }) {
     return ChatModel(
       id: id ?? this.id,
       otherUser: otherUser ?? this.otherUser,
       messages: messages ?? this.messages,
       lastMessage: lastMessage ?? this.lastMessage,
-      lastMessageTime: lastMessageTime ?? this.lastMessageTime,
+      // lastMessageTime: lastMessageTime ?? this.lastMessageTime,
     );
   }
 }

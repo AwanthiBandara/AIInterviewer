@@ -134,7 +134,7 @@ setState(() {
                                     fit: BoxFit.cover,
                                   )
                                 : DecorationImage(
-                                    image: state.userInfo.profileUrl.isNotEmpty
+                                    image: state.userInfo.companyLogoUrl.isNotEmpty
                                         ? NetworkImage(state.userInfo.companyLogoUrl)
                                         : AssetImage('assets/images/company_placeholder.png') as ImageProvider,
                                     fit: BoxFit.cover,
