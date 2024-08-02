@@ -72,13 +72,12 @@ class SeekerPublicFeedScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                     SizedBox(width: 8),
                     Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text("${state.userInfo.firstName} ${state.userInfo.lastName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: greyTextColor),),
-                                const Text("HR Head at ABC Pvt Ltd, UK", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
+                                Text("${state.userInfo.currentPosition}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
                               ],
                             ),
                             Spacer(),
