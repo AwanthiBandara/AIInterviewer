@@ -41,11 +41,14 @@ dependencies:
   provider: ^6.1.2
   flutter_bloc: ^8.1.5
   http: ^0.13.5
-  date_picker_plus: ^4.0.0
+  # date_picker_plus: ^2.1.0
   image_picker: ^1.0.1
   shared_preferences: ^2.0.16
   cloud_firestore: ^4.9.2
   firebase_storage: ^11.0.2
+  intl: ^0.17.0
+  date_picker_plus:
+    path: ./local_packages/date_picker-master
 
 dev_dependencies:
   flutter_test:

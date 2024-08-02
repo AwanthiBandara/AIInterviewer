@@ -5,6 +5,7 @@ import 'package:aiinterviewer/views/login_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_datepicker.dart';
+import 'package:aiinterviewer/widgets/custom_datepicker_new.dart';
 import 'package:aiinterviewer/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,8 +23,9 @@ class _SeekerSignupScreenState extends State<SeekerSignupScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-   final TextEditingController _birthdayController = TextEditingController();
-  final TextEditingController _currentPositionController = TextEditingController();
+  final TextEditingController _birthdayController = TextEditingController();
+  final TextEditingController _currentPositionController =
+      TextEditingController();
   DateTime? _birthday;
   String _selectedGender = 'Male';
 
@@ -40,20 +42,20 @@ class _SeekerSignupScreenState extends State<SeekerSignupScreen> {
     }
   }
 
-void _signup() {
-  context.read<SignupCubit>().seekerSignup(
-    email: _emailController.text,
-    password: _passwordController.text,
-    firstName: _firstNameController.text,
-    lastName: _lastNameController.text,
-    currentPosition: _currentPositionController.text,
-    birthday: _birthdayController.text, // Assuming you have a controller for birthday
-    gender: _selectedGender,
-    profileImage: _profileImage,
-    context: context,
-  );
-}
-
+  void _signup() {
+    context.read<SignupCubit>().seekerSignup(
+          email: _emailController.text,
+          password: _passwordController.text,
+          firstName: _firstNameController.text,
+          lastName: _lastNameController.text,
+          currentPosition: _currentPositionController.text,
+          birthday: _birthdayController
+              .text, // Assuming you have a controller for birthday
+          gender: _selectedGender,
+          profileImage: _profileImage,
+          context: context,
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +72,10 @@ void _signup() {
             onTap: () {
               Navigator.pop(context);
             },
-            child: const Icon(Icons.arrow_back_ios_new_rounded, color: grayColor,),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: grayColor,
+            ),
           ),
         ),
         body: BlocListener<SignupCubit, SignupState>(
@@ -83,7 +88,8 @@ void _signup() {
             } else if (state.errorMessage != null) {
               // Show error message
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Sign up failed: ${state.errorMessage}')),
+                SnackBar(
+                    content: Text('Sign up failed: ${state.errorMessage}')),
               );
             }
           },
@@ -105,11 +111,11 @@ void _signup() {
                             color: cardColor,
                             borderRadius: BorderRadius.circular(12),
                             image: _profileImage != null
-                              ? DecorationImage(
-                                  image: FileImage(_profileImage!),
-                                  fit: BoxFit.cover,
-                                )
-                              : null,
+                                ? DecorationImage(
+                                    image: FileImage(_profileImage!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
                           ),
                           child: _profileImage == null
                               ? Center(
@@ -134,16 +140,16 @@ void _signup() {
                     children: [
                       Expanded(
                         child: CustomTextField(
-                          controller: _firstNameController, 
-                          hintText: 'First Name', 
+                          controller: _firstNameController,
+                          hintText: 'First Name',
                           overlineText: 'Enter your first name',
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: CustomTextField(
-                          controller: _lastNameController, 
-                          hintText: 'Last Name', 
+                          controller: _lastNameController,
+                          hintText: 'Last Name',
                           overlineText: 'Enter your last name',
                         ),
                       ),
@@ -151,70 +157,86 @@ void _signup() {
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
-                    controller: _emailController, 
-                    hintText: 'Email', 
+                    controller: _emailController,
+                    hintText: 'Email',
                     overlineText: 'Enter email',
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
-                    controller: _passwordController, 
-                    hintText: 'Password', 
+                    controller: _passwordController,
+                    hintText: 'Password',
                     overlineText: 'Enter password',
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
-                    controller: _currentPositionController, 
-                    hintText: 'Current Position', 
+                    controller: _currentPositionController,
+                    hintText: 'Current Position',
                     overlineText: 'Enter your current position',
                   ),
                   const SizedBox(height: 18),
-                 CustomDatePicker(onChanged: (value){
-                setState(() {
-                  _birthday = value;
-                  _birthdayController.text = value.toString(); // or format the date as needed
-                });
-                print(value.toString());
-              }),
-               const SizedBox(height: 18),
-              
-              const SizedBox(height: 18),
+                  CustomDatePickerNew(
+                    overLineHeaderText: "Date of Birth",
+                    placeHolderText: "DD/MM/YYYY",
+                    onChanged: (value) {
+                      setState(() {
+                        _birthday = value;
+                        _birthdayController.text =
+                            value.toString(); // or format the date as needed
+                      });
+                    },
+                  ),
+                  //    CustomDatePicker(onChanged: (value){
+                  //   setState(() {
+                  //     _birthday = value;
+                  //     _birthdayController.text = value.toString(); // or format the date as needed
+                  //   });
+                  //   print(value.toString());
+                  // }),
+                  const SizedBox(height: 18),
+
+                  const SizedBox(height: 18),
                   const SizedBox(height: 32),
                   BlocBuilder<SignupCubit, SignupState>(
                     builder: (context, state) {
                       return state.isLoading
-                        ? CircularProgressIndicator()
-                        : CustomButton(
-                            onTap: _signup,
-                            buttonText: "Register",
-                          );
+                          ? CircularProgressIndicator()
+                          : CustomButton(
+                              onTap: _signup,
+                              buttonText: "Register",
+                            );
                     },
                   ),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                       GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginScreen()),
-                        );
-                      },
-                      child: RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "Already have an account? ",
-                              style: TextStyle(color: grayColor, fontSize: 14),
-                            ),
-                            TextSpan(
-                              text: "Login",
-                              style: TextStyle(color: greyTextColor, fontSize: 14, fontWeight: FontWeight.w500),
-                            ),
-                          ],
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginScreen()),
+                          );
+                        },
+                        child: RichText(
+                          text: const TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Already have an account? ",
+                                style:
+                                    TextStyle(color: grayColor, fontSize: 14),
+                              ),
+                              TextSpan(
+                                text: "Login",
+                                style: TextStyle(
+                                    color: greyTextColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
                     ],
                   ),
                   const SizedBox(height: 30),
