@@ -9,6 +9,7 @@ import 'package:aiinterviewer/models/job_model.dart';
 import 'package:aiinterviewer/models/question.dart';
 import 'package:aiinterviewer/models/user_info_mode.dart';
 import 'package:aiinterviewer/views/seeker/seeker_interview_screen.dart';
+import 'package:aiinterviewer/widgets/screen_loading.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -587,9 +588,11 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
     required String companySize,
     required String aboutCompany,
     File? companyLogoFile,
+    required BuildContext context,
   }) async {
     try {
       emit(state.copyWith(isLoading: true));
+      Loading().startLoading(context);
 
       String? companyLogoUrl = state.userInfo.companyLogoUrl;
 
@@ -640,8 +643,10 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
         userInfo: updatedUserInfoModel,
         isLoading: false,
       ));
+      Loading().stopLoading(context);
     } catch (e) {
       emit(state.copyWith(isLoading: false));
+      Loading().stopLoading(context);
       // Handle error appropriately, e.g., show a snackbar or log the error
       throw e;
     }
@@ -665,9 +670,11 @@ Future<void> updateProfileSeeker({
   required DateTime birthday,
   required String gender,
   File? profileImage,
+  required BuildContext context,
 }) async {
   try {
     emit(state.copyWith(isLoading: true));
+    Loading().startLoading(context);
 
     String? profileImageUrl = state.userInfo.profileUrl;
 
@@ -719,8 +726,10 @@ Future<void> updateProfileSeeker({
       userInfo: updatedUserInfoModel,
       isLoading: false,
     ));
+    Loading().stopLoading(context);
   } catch (e) {
     emit(state.copyWith(isLoading: false));
+    Loading().stopLoading(context);
     // Handle error appropriately, e.g., show a snackbar or log the error
     // throw e;
   }

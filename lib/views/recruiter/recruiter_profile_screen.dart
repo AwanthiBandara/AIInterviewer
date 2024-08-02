@@ -220,6 +220,7 @@ setState(() {
                             companySize: _companySizeController.text,
                             aboutCompany: _aboutCompanyController.text,
                             companyLogoFile: _companyImage,
+                            context: context,
                           );
                     },
                     buttonText: "Update",
