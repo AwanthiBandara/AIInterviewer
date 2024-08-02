@@ -95,9 +95,11 @@ class SeekerPublicFeedScreen extends StatelessWidget {
             const SizedBox(height: 5),
             Divider(color: secondaryColor, thickness: 0.4,),
             const SizedBox(height: 15),
-            CustomSearchBar(
+           CustomSearchBar(
               controller: _searchController,
-              onChanged: (String) {},
+              onChanged: (text) {
+                context.read<AppCubit>().setSearchQuery(text);
+              },
             ),
             const SizedBox(height: 15),
             Row(
@@ -124,14 +126,19 @@ class SeekerPublicFeedScreen extends StatelessWidget {
                 List<JobModel> sortedJobs = List.from(state.jobs)
                   ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
+                   final filteredJobs = sortedJobs.where((job) {
+                  final query = state.searchQuery.toLowerCase();
+                  return job.jobTitle.toLowerCase().contains(query) || job.jobDescription.toLowerCase().contains(query);
+                }).toList();
+
                 return Expanded(
                   child: ListView.builder(
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
                     physics: const BouncingScrollPhysics(),
-                    itemCount: sortedJobs.length,
+                    itemCount: filteredJobs.length,
                     itemBuilder: (context, index) {
-                      final thisJob = sortedJobs[index];
+                      final thisJob = filteredJobs[index];
                       return GestureDetector(
                         onTap: () => _showSeekerViewJobBottomSheet(context, thisJob),
                         child: JobCardRecruiter(
