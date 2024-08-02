@@ -86,7 +86,7 @@ class ChatListScreen extends StatelessWidget {
 
                         if (userData != null) {
                           final username = '${userData['firstName']} ${userData['lastName']}';
-                          final profileImageUrl = userData['profileUrl'] ?? 'https://picsum.photos/536/354';
+                          final profileImageUrl = userData['userType'] == "job_seeker" ? userData['profileUrl'] : userData['companyLogoUrl'] ?? 'https://picsum.photos/536/354';
 
                           return GestureDetector(
                             onTap: () {

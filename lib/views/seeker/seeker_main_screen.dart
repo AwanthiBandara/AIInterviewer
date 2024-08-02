@@ -1,6 +1,8 @@
 import 'package:aiinterviewer/bloc/app_bloc/app_cubit.dart';
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
+import 'package:aiinterviewer/bloc/chat_bloc/chat_cubit.dart';
 import 'package:aiinterviewer/constants/colors.dart';
+import 'package:aiinterviewer/views/chat/chat_list_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_my_feed_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_profile_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_public_feed_screen.dart';
@@ -21,6 +23,7 @@ class _SeekerMainScreenState extends State<SeekerMainScreen> {
   final List<Widget> _screens = [
     SeekerPublicFeedScreen(),
     SeekerMyFeedScreen(),
+     ChatListScreen(),
     const SeekerProfileScreen(),
   ];
 
@@ -36,6 +39,7 @@ class _SeekerMainScreenState extends State<SeekerMainScreen> {
     context.read<AppCubit>().loadInterviewTypes();
     context.read<AppCubit>().loadSearchTextList();
     context.read<AppCubit>().loadJobs();
+     context.read<ChatCubit>().loadMyAllChats(context);
   }
 
   @override
@@ -58,6 +62,10 @@ class _SeekerMainScreenState extends State<SeekerMainScreen> {
                 icon: Icon(Icons.forum),
                 label: 'My',
               ),
+               BottomNavigationBarItem(
+                  icon: Icon(Icons.chat),
+                  label: 'Chat',
+                ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),
                 label: 'Profile',
