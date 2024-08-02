@@ -5,12 +5,36 @@ import 'package:aiinterviewer/helper/helper_functions.dart';
 import 'package:aiinterviewer/models/job_model.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_ranking_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
+import 'package:aiinterviewer/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class RecruiterViewJobBottomSheet extends StatelessWidget {
+class RecruiterViewJobBottomSheet extends StatefulWidget {
   final JobModel job;
-  const RecruiterViewJobBottomSheet({super.key, required this.job});
+  RecruiterViewJobBottomSheet({super.key, required this.job});
+
+  @override
+  State<RecruiterViewJobBottomSheet> createState() =>
+      _RecruiterViewJobBottomSheetState();
+}
+
+class _RecruiterViewJobBottomSheetState
+    extends State<RecruiterViewJobBottomSheet> {
+  final TextEditingController _jobDescriptionController =
+      TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setInitialValues();
+  }
+
+  setInitialValues() {
+    setState(() {
+      _jobDescriptionController.text = widget.job.jobDescription;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,37 +89,47 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
                               height: 60,
                               width: 60,
                               decoration: BoxDecoration(
-                                  color: greyTextColor,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color: secondaryColor.withOpacity(0.2),
-                                      width: 1.2),
-                                  image: DecorationImage(
-                                      image: NetworkImage(
-                                          "https://penji.co/wp-content/uploads/2022/10/4.-OrSpeakIT.jpg"),
-                                      fit: BoxFit.cover)),
+                                color: greyTextColor,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: secondaryColor.withOpacity(0.2),
+                                    width: 1.2),
+                                image: DecorationImage(
+                                  image: widget.job.createdUser
+                                                  ?.companyLogoUrl !=
+                                              null &&
+                                          widget.job.createdUser!
+                                              .companyLogoUrl!.isNotEmpty
+                                      ? NetworkImage(widget
+                                          .job.createdUser!.companyLogoUrl!)
+                                      : const AssetImage(
+                                              'assets/images/company_placeholder.png')
+                                          as ImageProvider,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  job.jobTitle,
+                                  widget.job.jobTitle,
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500,
                                       color: greyTextColor),
                                 ),
-                                const Text(
-                                  "HR Head at ABC Pvt Ltd, UK",
+                                Text(
+                                  "${widget.job.createdUser?.companyName}, ${widget.job.createdUser?.companyLocation}",
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       letterSpacing: 1,
                                       color: greyTextColor),
                                 ),
-                                const Text(
-                                  "Remote | USD85,000/yr - USD95,000/yr",
+                                Text(
+                                  "${widget.job.jobType} | ${widget.job.salaryRange}",
                                   style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -112,7 +146,7 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "${job.applicants.length} applicants | ${timeAgo(job.createdAt.toDate())}",
+                              "${widget.job.applicants.length} applicants | ${timeAgo(widget.job.createdAt.toDate())}",
                               style: const TextStyle(
                                   fontSize: 12,
                                   color: green,
@@ -120,19 +154,29 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
                             ),
                             BlocBuilder<AppCubit, AppState>(
                               builder: (context, state) {
-                                return job.createdBy == state.userInfo.uid ? Container(
-                                  height: 25,
-                                  width: 85,
-                                  decoration: BoxDecoration(
-                                      color: grayColor.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(4)),
-                                  child: Center(
-                                    child: Text(
-                                      "Edit",
-                                      style: TextStyle(color: greyTextColor),
-                                    ),
-                                  ),
-                                ) : SizedBox();
+                                return widget.job.createdBy ==
+                                        state.userInfo.uid
+                                    ? GestureDetector(
+                                      onTap: () {
+                                         context.read<AppCubit>().updateJob(jobId: widget.job.jobId, jobDescription: _jobDescriptionController.text);
+                                      },
+                                      child: Container(
+                                          height: 25,
+                                          width: 85,
+                                          decoration: BoxDecoration(
+                                              color: grayColor.withOpacity(0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(4)),
+                                          child: Center(
+                                            child: Text(
+                                              "Update",
+                                              style:
+                                                  TextStyle(color: greyTextColor),
+                                            ),
+                                          ),
+                                        ),
+                                    )
+                                    : SizedBox();
                               },
                             ),
                           ],
@@ -154,11 +198,28 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 6),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team. Responsibilities include designing, developing, and maintaining high-quality Java applications. The ideal candidate should have a strong understanding of Java programming concepts, experience with Spring framework, and a passion for delivering innovative solutions. Join us in shaping the future of software development. Responsibilities include designing, developing, and maintaining high-quality Java applications. The ideal candidate should have a strong understanding of Java programming concepts, experience with Spring framework, and a passion for delivering innovative solutions. Join us in shaping the future of software development!",
+
+                            BlocBuilder<AppCubit, AppState>(
+                              builder: (context, state) {
+                              
+
+                                     return   state.userInfo.uid == widget.job.createdBy ? CustomTextField(
+                                  controller: _jobDescriptionController,
+                                  hintText: "Job description",
+                                  overlineText: null,
+                                  backgroundColor: inCardColor,
+                                  minLines: 5,
+                                  maxLines: 5,
+                                ) :  
+                                Text(
+                              "${widget.job.jobDescription}",
                               style:
                                   TextStyle(fontSize: 12, color: cardTextColor),
+                            ); 
+                             
+                              },
                             ),
+                           
                             const SizedBox(height: 12),
                             Row(
                               children: [
@@ -173,18 +234,8 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 6),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team. Responsibilities include.",
-                              style:
-                                  TextStyle(fontSize: 12, color: cardTextColor),
-                            ),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team. Responsibilities include.",
-                              style:
-                                  TextStyle(fontSize: 12, color: cardTextColor),
-                            ),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team. Responsibilities include.",
+                            Text(
+                              "${widget.job.jobRequirements}",
                               style:
                                   TextStyle(fontSize: 12, color: cardTextColor),
                             ),
@@ -202,13 +253,8 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 6),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team.",
-                              style:
-                                  TextStyle(fontSize: 12, color: cardTextColor),
-                            ),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team..",
+                            Text(
+                              "${widget.job.jobBenefits}",
                               style:
                                   TextStyle(fontSize: 12, color: cardTextColor),
                             ),
@@ -222,8 +268,8 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
                                   color: greyTextColor),
                             ),
                             const SizedBox(height: 6),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team. va developer to join our team.",
+                            Text(
+                              "${widget.job.salaryRange}",
                               style:
                                   TextStyle(fontSize: 12, color: cardTextColor),
                             ),
@@ -242,21 +288,21 @@ class RecruiterViewJobBottomSheet extends StatelessWidget {
             builder: (context, state) {
               return CustomButton(
                 onTap: () {
-                  if (job.createdBy == state.userInfo.uid) {
+                  if (widget.job.createdBy == state.userInfo.uid) {
                     Navigator.of(context)
                         .pop(); // Close the bottom sheet after publishing
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) =>
-                              RecruiterRankingScreen(job: job)),
+                              RecruiterRankingScreen(job: widget.job)),
                     );
                   } else {
                     Navigator.of(context)
                         .pop(); // Close the bottom sheet after publishing
                   }
                 },
-                buttonText: job.createdBy == state.userInfo.uid
+                buttonText: widget.job.createdBy == state.userInfo.uid
                     ? "View Applicants"
                     : "Back to home",
               );

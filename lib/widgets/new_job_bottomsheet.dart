@@ -23,6 +23,10 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
       TextEditingController();
   final TextEditingController _salaryRangeController =
       TextEditingController();
+  final TextEditingController _jobRequirements =
+      TextEditingController();
+  final TextEditingController _jobBenefits =
+      TextEditingController();
 
   List<String> filteredSearchTextList = [];
   String jobType = "Remote";
@@ -216,6 +220,24 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                       maxLines: null,
                       backgroundColor: inCardColor,
                     ),
+                     SizedBox(height: 15),
+                    CustomTextField(
+                      controller: _jobRequirements,
+                      hintText: "Enter job requirements here",
+                      overlineText: "Job requirements",
+                      minLines: 12,
+                      maxLines: null,
+                      backgroundColor: inCardColor,
+                    ),
+                     SizedBox(height: 15),
+                    CustomTextField(
+                      controller: _jobBenefits,
+                      hintText: "Enter job benefits here",
+                      overlineText: "Job benefits",
+                      minLines: 12,
+                      maxLines: null,
+                      backgroundColor: inCardColor,
+                    ),
                   ],
                 ),
               ),
@@ -228,6 +250,8 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                       interviewType: _interviewTypeController.text,
                       salaryRange: _salaryRangeController.text,
                       jobType: jobType,
+                      jobRequirements: _jobRequirements.text,
+                      jobBenefits: _jobBenefits.text,
                     );
                 Navigator.of(context)
                     .pop(); // Close the bottom sheet after publishing

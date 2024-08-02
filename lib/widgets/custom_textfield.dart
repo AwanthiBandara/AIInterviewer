@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
-  final String overlineText;
+  final String? overlineText;
   final bool obscureText;
   final double borderRadius;
   final Color borderColor;
@@ -19,7 +19,7 @@ class CustomTextField extends StatelessWidget {
     Key? key,
     required this.controller,
     required this.hintText,
-    required this.overlineText,
+    this.overlineText = null,
     this.obscureText = false,
     this.borderRadius = 8.0,
     this.borderColor = Colors.transparent, 
@@ -39,10 +39,10 @@ class CustomTextField extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              overlineText,
+            overlineText != null ? Text(
+              overlineText!,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: white),
-            ),
+            ) : SizedBox(),
             if (buttonText != null) // Conditionally show the button if buttonText is not null
               TextButton(
                 onPressed: onTapTextButton,

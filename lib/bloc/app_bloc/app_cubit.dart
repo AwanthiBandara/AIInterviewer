@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
+import 'package:aiinterviewer/bloc/chat_bloc/chat_cubit.dart';
 import 'package:aiinterviewer/constants/data.dart';
+import 'package:aiinterviewer/models/chat_model.dart';
 import 'package:aiinterviewer/models/job_model.dart';
 import 'package:aiinterviewer/models/question.dart';
 import 'package:aiinterviewer/models/user_info_mode.dart';
@@ -325,6 +327,8 @@ class AppCubit extends Cubit<AppState> {
     required String interviewType,
     required String salaryRange,
     required String jobType,
+    required String jobRequirements,
+    required String jobBenefits,
   }) async {
     emit(state.copyWith(isLoading: true));
     try {
@@ -355,7 +359,11 @@ class AppCubit extends Cubit<AppState> {
         createdAt: Timestamp.now(),
         createdBy: createdBy,
         applicants: [],
-        interviewType: interviewType, salaryRange: salaryRange, jobType: jobType,
+        interviewType: interviewType, 
+        salaryRange: salaryRange, 
+        jobType: jobType,
+        jobRequirements: jobRequirements,
+        jobBenefits: jobBenefits,
       );
 
       await docRef.update({'jobId': docRef.id});
@@ -638,5 +646,61 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
       throw e;
     }
   }
+
+
+  Future<void> updateJob({required String jobId, required String jobDescription}) async {
+    emit(state.copyWith(isLoading: true));
+    try {
+      await _firestore.collection('jobs').doc(jobId).update({
+        'jobDescription': jobDescription,
+      });
+
+      // Update the job description in the local state
+      List<JobModel> updatedJobs = state.jobs.map((job) {
+        if (job.jobId == jobId) {
+          return job.copyWith(jobDescription: jobDescription);
+        }
+        return job;
+      }).toList();
+
+      // Update the cache
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('jobs', jsonEncode(updatedJobs.map((job) => job.toJson()).toList()));
+
+      emit(state.copyWith(jobs: updatedJobs, isLoading: false));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, error: 'Failed to update job: $e'));
+    }
+  }
+
+
+ Future<String?> getChatIdForUser(String applicantId, BuildContext context) async {
+    final currentUserUid = state.userInfo.uid;
+    final chatId1 = '${currentUserUid}_$applicantId';
+    final chatId2 = '${applicantId}_$currentUserUid';
+
+    // Assuming ChatCubit is accessible and you can get the list of chat models
+    final chatCubit = BlocProvider.of<ChatCubit>(context);
+    final chats = chatCubit.state.chats;
+
+    for (ChatModel chat in chats!) {
+      if (chat.id == chatId1 || chat.id == chatId2) {
+        return chat.id;
+      }
+    }
+    return null;
+  }
+
+  Future<String?> createChatWithUser(String applicantId, BuildContext context) async {
+    final currentUserUid = state.userInfo.uid;
+    final chatId = '${currentUserUid}_$applicantId';
+
+    // Assuming you have a method in ChatCubit to create a new chat
+    final chatCubit = BlocProvider.of<ChatCubit>(context);
+    await chatCubit.createChat(chatId, applicantId);
+
+    return chatId;
+  }
+ 
 
 }
