@@ -30,6 +30,7 @@ class _RecruiterProfileScreenState extends State<RecruiterProfileScreen> {
       await prefs.remove('interview_types');
       await prefs.remove('searchTextList');
       await prefs.remove('cached_jobs');
+      await prefs.remove('cachedChats');
 
       await FirebaseAuth.instance.signOut();
 
