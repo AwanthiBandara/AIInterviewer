@@ -24,6 +24,7 @@ class _SeekerSignupScreenState extends State<SeekerSignupScreen> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _birthdayController = TextEditingController();
   final TextEditingController _currentPositionController =
       TextEditingController();
@@ -170,6 +171,12 @@ class _SeekerSignupScreenState extends State<SeekerSignupScreen> {
                   ),
                   const SizedBox(height: 18),
                   CustomTextField(
+                    controller: _confirmPasswordController,
+                    hintText: 'Confirm Password',
+                    overlineText: 'Enter password again',
+                  ),
+                  const SizedBox(height: 18),
+                  CustomTextField(
                     controller: _currentPositionController,
                     hintText: 'Current Position',
                     overlineText: 'Enter your current position',
@@ -217,7 +224,13 @@ class _SeekerSignupScreenState extends State<SeekerSignupScreen> {
                       return state.isLoading
                           ? CircularProgressIndicator()
                           : CustomButton(
-                              onTap: _signup,
+                              onTap: (){
+                                if(_passwordController.text == _confirmPasswordController.text){
+                                  _signup();
+                                }else{
+
+                                }
+                              },
                               buttonText: "Register",
                             );
                     },
