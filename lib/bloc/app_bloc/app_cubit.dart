@@ -9,6 +9,7 @@ import 'package:aiinterviewer/models/job_model.dart';
 import 'package:aiinterviewer/models/question.dart';
 import 'package:aiinterviewer/models/user_info_mode.dart';
 import 'package:aiinterviewer/views/seeker/seeker_interview_screen.dart';
+import 'package:aiinterviewer/views/user_type_selection_screen.dart';
 import 'package:aiinterviewer/widgets/screen_loading.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -330,6 +331,7 @@ class AppCubit extends Cubit<AppState> {
     required String jobType,
     required String jobRequirements,
     required String jobBenefits,
+    required BuildContext context,
   }) async {
     emit(state.copyWith(isLoading: true));
     try {
@@ -351,6 +353,8 @@ class AppCubit extends Cubit<AppState> {
         'applicants': [], // Initially empty array
         'salaryRange': salaryRange, 
         'jobType': jobType, 
+        'jobRequirements': jobRequirements, 
+        'jobBenefits': jobBenefits, 
       });
 
       JobModel newJob = JobModel(
@@ -370,14 +374,14 @@ class AppCubit extends Cubit<AppState> {
       await docRef.update({'jobId': docRef.id});
 
       emit(state.copyWith(isLoading: false));
-      _fetchJobsAndUpdateCache(); // Refresh the list of posts
+      _fetchJobsAndUpdateCache(context); // Refresh the list of posts
     } catch (e) {
       emit(
           state.copyWith(isLoading: false, error: 'Failed to create post: $e'));
     }
   }
 
-  Future<void> _fetchJobsAndUpdateCache() async {
+  Future<void> _fetchJobsAndUpdateCache(BuildContext context) async {
     emit(state.copyWith(isLoading: true));
     try {
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
@@ -409,6 +413,7 @@ class AppCubit extends Cubit<AppState> {
       await prefs.setString(_cacheKey, jobsJson);
 
       emit(state.copyWith(jobs: jobs, isLoading: false));
+       Navigator.push(context, MaterialPageRoute(builder: (context) => UserTypeSelectionScreen()),);
     } catch (e) {
       print('Error fetching posts: $e'); // Detailed error logging
       emit(state.copyWith(isLoading: false, error: 'Failed to fetch jobs'));

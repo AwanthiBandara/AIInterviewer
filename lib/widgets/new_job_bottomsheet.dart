@@ -225,8 +225,8 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                       controller: _jobRequirements,
                       hintText: "Enter job requirements here",
                       overlineText: "Job requirements",
-                      minLines: 12,
-                      maxLines: null,
+                      minLines: 6,
+                      maxLines: 6,
                       backgroundColor: inCardColor,
                     ),
                      SizedBox(height: 15),
@@ -234,10 +234,11 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                       controller: _jobBenefits,
                       hintText: "Enter job benefits here",
                       overlineText: "Job benefits",
-                      minLines: 12,
-                      maxLines: null,
+                      minLines: 6,
+                      maxLines: 6,
                       backgroundColor: inCardColor,
                     ),
+                     SizedBox(height: 15),
                   ],
                 ),
               ),
@@ -252,6 +253,7 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                       jobType: jobType,
                       jobRequirements: _jobRequirements.text,
                       jobBenefits: _jobBenefits.text,
+                      context: context
                     );
                 Navigator.of(context)
                     .pop(); // Close the bottom sheet after publishing
