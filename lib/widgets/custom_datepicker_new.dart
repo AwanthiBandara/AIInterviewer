@@ -13,6 +13,7 @@ class CustomDatePickerNew extends StatefulWidget {
   final Function(DateTime) onChanged;
   final String dateFormat;
   final bool? isRtlDirection;
+  final DateTime? initialDate; // Added this line
 
   const CustomDatePickerNew({
     Key? key,
@@ -25,6 +26,7 @@ class CustomDatePickerNew extends StatefulWidget {
     this.dateFormat = "dd/MM/yyyy",
     required this.onChanged,
     this.isRtlDirection,
+    this.initialDate, // Added this line
   }) : super(key: key);
 
   @override
@@ -33,6 +35,12 @@ class CustomDatePickerNew extends StatefulWidget {
 
 class _CustomDatePickerNewState extends State<CustomDatePickerNew> {
   DateTime? _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = widget.initialDate;
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     showDialog(
@@ -44,8 +52,8 @@ class _CustomDatePickerNewState extends State<CustomDatePickerNew> {
           insetPadding: const EdgeInsets.all(0),
           backgroundColor: inCardColor,
           child: DatePicker(
-            initialDate: DateTime.now(),
-            selectedDate: DateTime.now(),
+            initialDate: _selectedDate ?? DateTime.now(), // Updated this line
+            selectedDate: _selectedDate ?? DateTime.now(), // Updated this line
             minDate: DateTime(1900, 1, 1),
             maxDate: DateTime.now(),
             centerLeadingDate: true,
@@ -135,7 +143,7 @@ class _CustomDatePickerNewState extends State<CustomDatePickerNew> {
                         : widget.placeHolderText ?? '',
                     style: TextStyle(
                       fontSize: 16,
-                      color: _selectedDate != null ? Colors.white : grayColor,
+                      color: _selectedDate != null ? white : grayColor,
                     ),
                   ),
                   const Icon(

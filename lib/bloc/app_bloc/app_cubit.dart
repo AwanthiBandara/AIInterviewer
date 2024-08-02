@@ -647,6 +647,86 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
     }
   }
 
+  Future<String> _uploadProfileImage(String uid, File profileImage) async {
+  try {
+    String filePath = 'profileImages/$uid.png';
+    await FirebaseStorage.instance.ref(filePath).putFile(profileImage);
+    String downloadUrl = await FirebaseStorage.instance.ref(filePath).getDownloadURL();
+    return downloadUrl;
+  } catch (e) {
+    throw Exception('Error uploading image: $e');
+  }
+}
+
+Future<void> updateProfileSeeker({
+  required String firstName,
+  required String lastName,
+  required String currentPosition,
+  required DateTime birthday,
+  required String gender,
+  File? profileImage,
+}) async {
+  try {
+    emit(state.copyWith(isLoading: true));
+
+    String? profileImageUrl = state.userInfo.profileUrl;
+
+    // Upload profile image if a new file is provided
+    if (profileImage != null) {
+      profileImageUrl = await _uploadProfileImage(state.userInfo.uid, profileImage);
+    }
+
+    // Create a map of the updated profile data
+    final updatedUserInfo = {
+      'firstName': firstName,
+      'lastName': lastName,
+      'currentPosition': currentPosition,
+      'gender': gender,
+      'birthday': birthday,
+      if (profileImageUrl != null) 'profileUrl': profileImageUrl,
+    };
+
+    // Update the Firestore document
+    final userDocRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(state.userInfo.uid);
+    await userDocRef.update(updatedUserInfo);
+
+    // Update local state and SharedPreferences
+    final updatedUserInfoModel = UserInfoModel(
+      uid: state.userInfo.uid,
+      email: state.userInfo.email,
+      firstName: firstName,
+      lastName: lastName,
+      currentPosition: currentPosition,
+      birthday: Timestamp.fromDate(birthday),
+      gender: gender,
+      profileUrl: profileImageUrl ?? '',
+      userType: state.userInfo.userType,
+      aboutCompany: '',
+      companyLocation: '',
+      companyLogoUrl: '',
+      companyName: '',
+      companySize: '',
+    );
+
+    // Save the updated user info to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    String userInfoJson = jsonEncode(updatedUserInfoModel.toJson());
+    await prefs.setString('user_info', userInfoJson);
+
+    emit(state.copyWith(
+      userInfo: updatedUserInfoModel,
+      isLoading: false,
+    ));
+  } catch (e) {
+    emit(state.copyWith(isLoading: false));
+    // Handle error appropriately, e.g., show a snackbar or log the error
+    // throw e;
+  }
+}
+
+
 
   Future<void> updateJob({required String jobId, required String jobDescription}) async {
     emit(state.copyWith(isLoading: true));
