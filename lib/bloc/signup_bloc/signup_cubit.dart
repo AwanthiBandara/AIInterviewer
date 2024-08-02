@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:aiinterviewer/models/user_info_mode.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
 import 'package:aiinterviewer/views/seeker/seeker_main_screen.dart';
+import 'package:aiinterviewer/widgets/screen_loading.dart';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,6 +30,7 @@ class SignupCubit extends Cubit<SignupState> {
     required BuildContext context,  // Pass context as a required parameter
   }) async {
     emit(state.copyWith(isLoading: true));
+    Loading().startLoading(context);
     try {
       // Create a user with FirebaseAuth
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -73,6 +75,7 @@ class SignupCubit extends Cubit<SignupState> {
 
         emit(state.copyWith(isLoading: false, isSuccess: true));
         print('Signup successful!');
+        Loading().stopLoading(context);
         // Navigate to MainScreen
         Navigator.pushReplacement(
           context,
@@ -81,8 +84,10 @@ class SignupCubit extends Cubit<SignupState> {
       }
     } on FirebaseAuthException catch (e) {
       emit(state.copyWith(isLoading: false, errorMessage: e.message ?? 'An unknown error occurred'));
+      Loading().stopLoading(context);
     } catch (e) {
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      Loading().stopLoading(context);
     }
   }
 

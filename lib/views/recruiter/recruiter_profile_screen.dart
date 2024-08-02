@@ -134,15 +134,16 @@ setState(() {
                                     fit: BoxFit.cover,
                                   )
                                 : DecorationImage(
-                                    image: NetworkImage(
-                                        state.userInfo.companyLogoUrl),
+                                    image: state.userInfo.profileUrl.isNotEmpty
+                                        ? NetworkImage(state.userInfo.companyLogoUrl)
+                                        : AssetImage('assets/images/company_placeholder.png') as ImageProvider,
                                     fit: BoxFit.cover,
                                   ),
                           ),
                         ),
                         SizedBox(width: 15),
                         Text(
-                          "Tap to update company logo",
+                          "Tap to update profile image",
                           style: TextStyle(fontSize: 14, color: greyTextColor),
                         ),
                       ],
@@ -207,7 +208,7 @@ setState(() {
                     maxLines: 4,
                     minLines: 4,
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 32),
                   CustomButton(
                     onTap: () {
                        context.read<AppCubit>().updateProfile(

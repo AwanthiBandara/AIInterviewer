@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         context: context
                       );
                     },
-                    buttonText: state.isLoading ? 'Loading...' : 'Login',
+                    buttonText: 'Login',
                   ),
                   const SizedBox(height: 16),
                   Row(
