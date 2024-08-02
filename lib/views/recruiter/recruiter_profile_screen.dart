@@ -208,7 +208,7 @@ setState(() {
                     maxLines: 4,
                     minLines: 4,
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 32),
                   CustomButton(
                     onTap: () {
                        context.read<AppCubit>().updateProfile(

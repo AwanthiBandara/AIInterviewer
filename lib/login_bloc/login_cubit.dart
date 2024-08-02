@@ -3,6 +3,7 @@ import 'package:aiinterviewer/models/user_info_mode.dart';
 import 'package:aiinterviewer/views/login_screen.dart';
 import 'package:aiinterviewer/views/recruiter/recruiter_main_screen.dart';
 import 'package:aiinterviewer/views/seeker/seeker_main_screen.dart';
+import 'package:aiinterviewer/widgets/screen_loading.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,6 +23,7 @@ class LoginCubit extends Cubit<LoginState> {
     required BuildContext context,
   }) async {
     emit(state.copyWith(isLoading: true));
+    Loading().startLoading(context);
     try {
       // Authenticate user with FirebaseAuth
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -46,6 +48,7 @@ class LoginCubit extends Cubit<LoginState> {
           await prefs.setString('user_info', userInfoJson);
 
           emit(state.copyWith(isLoading: false));
+          Loading().stopLoading(context);
 
           // Navigate to the appropriate screen based on user type
           if (userInfo.userType == 'recruiter') {
@@ -58,14 +61,17 @@ class LoginCubit extends Cubit<LoginState> {
           }
         } else {
           emit(state.copyWith(isLoading: false, errorMessage: 'User document does not exist.'));
+          Loading().stopLoading(context);
         }
       }
     } on FirebaseAuthException catch (e) {
       // Handle login errors
       emit(state.copyWith(isLoading: false, errorMessage: e.message ?? 'An unknown error occurred'));
+      Loading().stopLoading(context);
     } catch (e) {
       // Handle any other errors
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
+      Loading().stopLoading(context);
     }
   }
 }
