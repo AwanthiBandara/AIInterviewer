@@ -63,11 +63,21 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: greyTextColor,
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
+                                border: Border.all(
+                                    color: secondaryColor.withOpacity(0.2),
+                                    width: 1.2),
                                 image: DecorationImage(
-                                  image: NetworkImage("https://penji.co/wp-content/uploads/2022/10/4.-OrSpeakIT.jpg"),
-                                  fit: BoxFit.cover
-                                )
+                                  image: job.createdUser
+                                                  ?.companyLogoUrl !=
+                                              null &&
+                                          job.createdUser!
+                                              .companyLogoUrl.isNotEmpty
+                                      ? NetworkImage(job.createdUser!.companyLogoUrl!)
+                                      : const AssetImage(
+                                              'assets/images/company_placeholder.png')
+                                          as ImageProvider,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -75,8 +85,8 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(job.jobTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: greyTextColor),),
-                                const Text("HR Head at ABC Pvt Ltd, UK", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
-                                const Text("Remote | USD85,000/yr - USD95,000/yr", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: greyTextColor),),
+                                Text("${job.createdUser?.companyName}, ${job.createdUser?.companyLocation}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
+                                Text( "${job.jobType} | ${job.salaryRange}", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: greyTextColor),),
                               ],
                             ),
                           ],
@@ -112,7 +122,7 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                           children: [
                             Row(
                           children: [
-                            const Text(
+                            Text(
                               "Job Description",
                               style: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.w500, color: greyTextColor, letterSpacing: 0.8),
@@ -120,8 +130,8 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 6),
-                        const Text(
-                          "Seeking a skilled Java developer to join our team. Responsibilities include designing, developing, and maintaining high-quality Java applications. The ideal candidate should have a strong understanding of Java programming concepts, experience with Spring framework, and a passion for delivering innovative solutions. Join us in shaping the future of software development. Responsibilities include designing, developing, and maintaining high-quality Java applications. The ideal candidate should have a strong understanding of Java programming concepts, experience with Spring framework, and a passion for delivering innovative solutions. Join us in shaping the future of software development!",
+                        Text(
+                           "${job.jobDescription}",
                           style: TextStyle(fontSize: 12, color: cardTextColor),
                         ),
                         const SizedBox(height: 12),
@@ -135,16 +145,8 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 6),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team. Responsibilities include.",
-                              style: TextStyle(fontSize: 12, color: cardTextColor),
-                            ),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team. Responsibilities include.",
-                              style: TextStyle(fontSize: 12, color: cardTextColor),
-                            ),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team. Responsibilities include.",
+                            Text(
+                               "${job.jobRequirements}",
                               style: TextStyle(fontSize: 12, color: cardTextColor),
                             ),
                             const SizedBox(height: 12),
@@ -158,12 +160,8 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 6),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team.",
-                              style: TextStyle(fontSize: 12, color: cardTextColor),
-                            ),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team..",
+                            Text(
+                              "${job.jobBenefits}",
                               style: TextStyle(fontSize: 12, color: cardTextColor),
                             ),
                               const SizedBox(height: 12),
@@ -173,8 +171,8 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                                   fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 0.8, color: greyTextColor),
                             ),
                             const SizedBox(height: 6),
-                            const Text(
-                              "Seeking a skilled Java developer to join our team. va developer to join our team.",
+                            Text(
+                             "${job.salaryRange}",
                               style: TextStyle(fontSize: 12, color: cardTextColor),
                             ),
                           ],

@@ -72,13 +72,12 @@ class SeekerPublicFeedScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                     SizedBox(width: 8),
                     Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text("${state.userInfo.firstName} ${state.userInfo.lastName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: greyTextColor),),
-                                const Text("HR Head at ABC Pvt Ltd, UK", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
+                                Text("${state.userInfo.currentPosition}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
                               ],
                             ),
                             Spacer(),
@@ -95,9 +94,11 @@ class SeekerPublicFeedScreen extends StatelessWidget {
             const SizedBox(height: 5),
             Divider(color: secondaryColor, thickness: 0.4,),
             const SizedBox(height: 15),
-            CustomSearchBar(
+           CustomSearchBar(
               controller: _searchController,
-              onChanged: (String) {},
+              onChanged: (text) {
+                context.read<AppCubit>().setSearchQuery(text);
+              },
             ),
             const SizedBox(height: 15),
             Row(
@@ -124,14 +125,19 @@ class SeekerPublicFeedScreen extends StatelessWidget {
                 List<JobModel> sortedJobs = List.from(state.jobs)
                   ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
+                   final filteredJobs = sortedJobs.where((job) {
+                  final query = state.searchQuery.toLowerCase();
+                  return job.jobTitle.toLowerCase().contains(query) || job.jobDescription.toLowerCase().contains(query);
+                }).toList();
+
                 return Expanded(
                   child: ListView.builder(
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
                     physics: const BouncingScrollPhysics(),
-                    itemCount: sortedJobs.length,
+                    itemCount: filteredJobs.length,
                     itemBuilder: (context, index) {
-                      final thisJob = sortedJobs[index];
+                      final thisJob = filteredJobs[index];
                       return GestureDetector(
                         onTap: () => _showSeekerViewJobBottomSheet(context, thisJob),
                         child: JobCardRecruiter(
@@ -173,21 +179,21 @@ class JobCardRecruiter extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                height: 60,
-                width: 60,
-                decoration: BoxDecoration(
-                  color: greyTextColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: secondaryColor.withOpacity(0.2), width: 1.2),
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                        "https://penji.co/wp-content/uploads/2022/10/4.-OrSpeakIT.jpg"),
-                    fit: BoxFit.cover,
-                  ),
+               Container(
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                color: greyTextColor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
+                image: DecorationImage(
+                  image: job.createdUser?.companyLogoUrl != null && job.createdUser!.companyLogoUrl!.isNotEmpty
+                      ? NetworkImage(job.createdUser!.companyLogoUrl!)
+                      : const AssetImage('assets/images/company_placeholder.png') as ImageProvider,
+                  fit: BoxFit.cover,
                 ),
               ),
+            ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,16 +205,16 @@ class JobCardRecruiter extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                         color: white),
                   ),
-                  const Text(
-                    "HR Head at ABC Pvt Ltd, UK",
+                  Text(
+                    "${job.createdUser?.companyName}, ${job.createdUser?.companyLocation}",
                     style: TextStyle(
                         fontSize: 14,
                         color: white,
                         fontWeight: FontWeight.w500,
                         letterSpacing: 1),
                   ),
-                  const Text(
-                    "Remote | USD85,000/yr - USD95,000/yr",
+                  Text(
+                    "${job.jobType} | ${job.salaryRange}",
                     style: TextStyle(
                         fontSize: 12, letterSpacing: 0.8, color: white),
                   ),
