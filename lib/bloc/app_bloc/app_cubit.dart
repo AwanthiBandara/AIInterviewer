@@ -323,102 +323,108 @@ class AppCubit extends Cubit<AppState> {
     }
   }
 
-  Future<void> createJob({
-    required String jobTitle,
-    required String jobDescription,
-    required String interviewType,
-    required String salaryRange,
-    required String jobType,
-    required String jobRequirements,
-    required String jobBenefits,
-    required BuildContext context,
-  }) async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      // Get the current user UID
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        emit(state.copyWith(isLoading: false, error: 'User not logged in'));
-        return;
-      }
+ Future<void> createJob({
+  required String jobTitle,
+  required String jobDescription,
+  required String interviewType,
+  required String salaryRange,
+  required String jobType,
+  required String jobRequirements,
+  required String jobBenefits,
+}) async {
+  emit(state.copyWith(isLoading: true));
+  try {
+    // Get the current user UID
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      emit(state.copyWith(isLoading: false, error: 'User not logged in'));
+      return;
+    }
 
-      String createdBy = currentUser.uid; // Get the UID
+    String createdBy = currentUser.uid; // Get the UID
 
-      DocumentReference docRef = await _firestore.collection('jobs').add({
-        'jobTitle': jobTitle,
-        'jobDescription': jobDescription,
-        'createdAt': FieldValue.serverTimestamp(),
-        'createdBy': createdBy,
-        'interviewType': interviewType,
-        'applicants': [], // Initially empty array
-        'salaryRange': salaryRange, 
-        'jobType': jobType, 
-        'jobRequirements': jobRequirements, 
-        'jobBenefits': jobBenefits, 
-      });
+    // Fetch user info for the current user
+    DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await _firestore.collection('users').doc(createdBy).get();
+    UserInfoModel userInfo = UserInfoModel.fromJson(userDoc.data() ?? {});
 
-      JobModel newJob = JobModel(
-        jobId: docRef.id,
-        jobTitle: jobTitle,
-        jobDescription: jobDescription,
-        createdAt: Timestamp.now(),
-        createdBy: createdBy,
-        applicants: [],
-        interviewType: interviewType, 
-        salaryRange: salaryRange, 
-        jobType: jobType,
-        jobRequirements: jobRequirements,
-        jobBenefits: jobBenefits,
+    // Create job document
+    DocumentReference docRef = await _firestore.collection('jobs').add({
+      'jobTitle': jobTitle,
+      'jobDescription': jobDescription,
+      'createdAt': FieldValue.serverTimestamp(),
+      'createdBy': createdBy,
+      'interviewType': interviewType,
+      'applicants': [], // Initially empty array
+      'salaryRange': salaryRange,
+      'jobType': jobType,
+      'jobRequirements': jobRequirements,
+      'jobBenefits': jobBenefits,
+      'createdUser': userInfo.toJson(), // Save the user info as part of the job
+    });
+
+    JobModel newJob = JobModel(
+      jobId: docRef.id,
+      jobTitle: jobTitle,
+      jobDescription: jobDescription,
+      createdAt: Timestamp.now(),
+      createdBy: createdBy,
+      applicants: [],
+      interviewType: interviewType,
+      salaryRange: salaryRange,
+      jobType: jobType,
+      jobRequirements: jobRequirements,
+      jobBenefits: jobBenefits,
+      createdUser: userInfo,
+    );
+
+    await docRef.update({'jobId': docRef.id});
+
+    emit(state.copyWith(isLoading: false));
+    _fetchJobsAndUpdateCache(); // Refresh the list of posts
+  } catch (e) {
+    emit(state.copyWith(isLoading: false, error: 'Failed to create post: $e'));
+  }
+}
+
+
+
+  Future<void> _fetchJobsAndUpdateCache() async {
+  emit(state.copyWith(isLoading: true));
+  try {
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _firestore.collection('jobs').get();
+
+    List<JobModel> jobs = [];
+    for (var doc in querySnapshot.docs) {
+      final data = doc.data();
+      String createdBy = data['createdBy'] as String;
+
+      // Fetch user info for each post
+      DocumentSnapshot<Map<String, dynamic>> userDoc =
+          await _firestore.collection('users').doc(createdBy).get();
+      UserInfoModel userInfo = UserInfoModel.fromJson(userDoc.data() ?? {});
+
+      // Create JobModel with additional fields
+      JobModel job = JobModel.fromJson(data).copyWith(
+        createdUser: userInfo,
       );
 
-      await docRef.update({'jobId': docRef.id});
-
-      emit(state.copyWith(isLoading: false));
-      _fetchJobsAndUpdateCache(context); // Refresh the list of posts
-    } catch (e) {
-      emit(
-          state.copyWith(isLoading: false, error: 'Failed to create post: $e'));
+      jobs.add(job);
     }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String jobsJson = jsonEncode(jobs.map((job) => job.toJson()).toList());
+    await prefs.setString(_cacheKey, jobsJson);
+
+    emit(state.copyWith(jobs: jobs, isLoading: false));
+  } catch (e) {
+    print('Error fetching jobs: $e'); // Detailed error logging
+    emit(state.copyWith(isLoading: false, error: 'Failed to fetch jobs'));
   }
+}
 
-  Future<void> _fetchJobsAndUpdateCache(BuildContext context) async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await _firestore.collection('jobs').get();
 
-      List<JobModel> jobs = [];
-      for (var doc in querySnapshot.docs) {
-        final data = doc.data();
-        String createdBy = data['createdBy'] as String;
-
-        // Fetch user info for each post
-        DocumentSnapshot<Map<String, dynamic>> userDoc =
-            await _firestore.collection('users').doc(createdBy).get();
-        final userData = userDoc.data() ?? {};
-        String firstName = userData['firstName'] ?? '';
-        String lastName = userData['lastName'] ?? '';
-
-        // Create PostModel with additional fields
-        JobModel job = JobModel.fromJson(data).copyWith(
-          firstName: firstName,
-          lastName: lastName,
-        );
-
-        jobs.add(job);
-      }
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String jobsJson = jsonEncode(jobs.map((job) => job.toJson()).toList());
-      await prefs.setString(_cacheKey, jobsJson);
-
-      emit(state.copyWith(jobs: jobs, isLoading: false));
-       Navigator.push(context, MaterialPageRoute(builder: (context) => UserTypeSelectionScreen()),);
-    } catch (e) {
-      print('Error fetching posts: $e'); // Detailed error logging
-      emit(state.copyWith(isLoading: false, error: 'Failed to fetch jobs'));
-    }
-  }
 
   void readyInterview(
       BuildContext context, JobModel job) {

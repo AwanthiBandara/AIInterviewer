@@ -253,7 +253,6 @@ class _NewJobBottomSheetState extends State<NewJobBottomSheet> {
                       jobType: jobType,
                       jobRequirements: _jobRequirements.text,
                       jobBenefits: _jobBenefits.text,
-                      context: context
                     );
                 Navigator.of(context)
                     .pop(); // Close the bottom sheet after publishing
