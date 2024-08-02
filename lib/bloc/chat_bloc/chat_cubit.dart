@@ -71,4 +71,31 @@ class ChatCubit extends Cubit<ChatState> {
       emit(state.copyWith(isLoading: false, errorMessage: e.toString()));
     }
   }
+
+Future<void> createChat(String chatId, String applicantId) async {
+  // Fetch the other user's data from Firestore
+  final otherUserDoc = await FirebaseFirestore.instance.collection('users').doc(applicantId).get();
+  final otherUserData = otherUserDoc.data() as Map<String, dynamic>;
+
+  final otherUser = UserInfoModel.fromJson(otherUserData);
+
+  // Create a new ChatModel with the necessary data
+  final newChat = ChatModel(
+    id: chatId,
+    otherUser: otherUser,
+    messages: [],
+    lastMessage: '',
+    lastMessageTime: Timestamp.now(),
+  );
+
+  // Save the new chat to the database
+  await FirebaseFirestore.instance.collection('chats').doc(chatId).set(newChat.toMap());
+
+  // Update the state with the new chat
+  final updatedChats = List<ChatModel>.from(state.chats ?? [])..add(newChat);
+  emit(state.copyWith(chats: updatedChats));
+}
+
+
+
 }

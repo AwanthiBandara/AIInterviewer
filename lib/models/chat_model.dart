@@ -40,4 +40,22 @@ class ChatModel {
       'lastMessageTime': lastMessageTime.toDate().toIso8601String(),
     };
   }
+
+  ChatModel copyWith({
+    String? id,
+    UserInfoModel? otherUser,
+    List<MessageModel>? messages,
+    String? lastMessage,
+    Timestamp? lastMessageTime,
+  }) {
+    return ChatModel(
+      id: id ?? this.id,
+      otherUser: otherUser ?? this.otherUser,
+      messages: messages ?? this.messages,
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastMessageTime: lastMessageTime ?? this.lastMessageTime,
+    );
+  }
 }
+
+

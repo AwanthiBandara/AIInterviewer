@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
+import 'package:aiinterviewer/bloc/chat_bloc/chat_cubit.dart';
 import 'package:aiinterviewer/constants/data.dart';
+import 'package:aiinterviewer/models/chat_model.dart';
 import 'package:aiinterviewer/models/job_model.dart';
 import 'package:aiinterviewer/models/question.dart';
 import 'package:aiinterviewer/models/user_info_mode.dart';
@@ -671,6 +673,34 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
     }
   }
 
+
+ Future<String?> getChatIdForUser(String applicantId, BuildContext context) async {
+    final currentUserUid = state.userInfo.uid;
+    final chatId1 = '${currentUserUid}_$applicantId';
+    final chatId2 = '${applicantId}_$currentUserUid';
+
+    // Assuming ChatCubit is accessible and you can get the list of chat models
+    final chatCubit = BlocProvider.of<ChatCubit>(context);
+    final chats = chatCubit.state.chats;
+
+    for (ChatModel chat in chats!) {
+      if (chat.id == chatId1 || chat.id == chatId2) {
+        return chat.id;
+      }
+    }
+    return null;
+  }
+
+  Future<String?> createChatWithUser(String applicantId, BuildContext context) async {
+    final currentUserUid = state.userInfo.uid;
+    final chatId = '${currentUserUid}_$applicantId';
+
+    // Assuming you have a method in ChatCubit to create a new chat
+    final chatCubit = BlocProvider.of<ChatCubit>(context);
+    await chatCubit.createChat(chatId, applicantId);
+
+    return chatId;
+  }
  
 
 }
