@@ -13,10 +13,17 @@ import 'package:flutter/material.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SeekerMyFeedScreen extends StatelessWidget {
+class SeekerMyFeedScreen extends StatefulWidget {
   SeekerMyFeedScreen({super.key}) {}
 
+  @override
+  State<SeekerMyFeedScreen> createState() => _SeekerMyFeedScreenState();
+}
+
+class _SeekerMyFeedScreenState extends State<SeekerMyFeedScreen> {
   final TextEditingController _searchController = TextEditingController();
+
+  String searchTextLocal = "";
 
       void _showNewJobBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -94,7 +101,13 @@ class SeekerMyFeedScreen extends StatelessWidget {
             const SizedBox(height: 15),
             CustomSearchBar(
               controller: _searchController,
-              onChanged: (String) {},
+              onChanged: (text) {
+                setState(() {
+                  searchTextLocal = text;
+                });
+                // print(text);
+                //  context.read<AppCubit>().setSearchQuery(text);
+              },
             ),
             const SizedBox(height: 15),
             Row(
@@ -115,43 +128,55 @@ class SeekerMyFeedScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 15),
-              BlocBuilder<AppCubit, AppState>(
-                  builder: (context, state) {
-                    // Get the current user ID from the AppCubit state
-                    final String currentUserId = state.userInfo.uid;
+             BlocBuilder<AppCubit, AppState>(
+                builder: (context, state) {
+                  // Get the current user ID from the AppCubit state
+                  final String currentUserId = state.userInfo.uid;
 
-                    // Filter the jobs by the current user ID and sort them by createdAt in descending order
-                    List<JobModel> filteredAndSortedJobs = (state.jobs as List<JobModel>)
-                      .where((job) => job.createdBy == currentUserId)
-                      .toList()
-                      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+                  // Filter jobs where the current user is in the applicants list and sort them by createdAt in descending order
+                  final filteredAndSortedJobs = (state.jobs as List<JobModel>)
+                    .where((job) => job.applicants.any((applicant) => applicant.applicantId == currentUserId))
+                    .toList()
+                    ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-                      if(filteredAndSortedJobs.length == 0){
-                        return Center(child: Padding(
-                          padding: const EdgeInsets.only(top: 170),
-                          child: Text("No available jobs you're interviewed", style: TextStyle(color: greyTextColor),),
-                        ));
-                      }
+                  // Further filter jobs based on the search text
+                  final filteredJobs = filteredAndSortedJobs.where((job) {
+                    final query = searchTextLocal.toLowerCase();
+                    return job.jobTitle.toLowerCase().contains(query) || job.jobDescription.toLowerCase().contains(query);
+                  }).toList();
 
-                    return Expanded(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.zero,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: filteredAndSortedJobs.length,
-                        itemBuilder: (context, index) {
-                          final thisJob = filteredAndSortedJobs[index];
-                          return GestureDetector(
-                            onTap: () => _showRecruiterViewJobBottomSheet(context, thisJob),
-                            child: JobCardRecruiter(
-                              job: thisJob,
-                            ),
-                          );
-                        },
+                  // Display a message if no jobs are available
+                  if (filteredJobs.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 170),
+                        child: Text(
+                          "No available jobs you're interviewed",
+                          style: TextStyle(color: greyTextColor),
+                        ),
                       ),
                     );
-                  },
-                ),
+                  }
+
+                  // Display the list of filtered jobs
+                  return Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: filteredJobs.length,
+                      itemBuilder: (context, index) {
+                        final thisJob = filteredJobs[index];
+                        return GestureDetector(
+                          onTap: () => _showRecruiterViewJobBottomSheet(context, thisJob),
+                          child: JobCardRecruiter(job: thisJob),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+
 
 
 
