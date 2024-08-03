@@ -589,79 +589,88 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
       throw Exception('Error uploading image: $e');
     }
   }
+Future<void> updateProfile({
+  required String companyName,
+  required String companyLocation,
+  required String firstName,
+  required String lastName,
+  required String currentPosition,
+  required String companySize,
+  required String aboutCompany,
+  File? companyLogoFile,
+  // required BuildContext context,
+}) async {
+  try {
+    emit(state.copyWith(isLoading: true));
+    // Loading().startLoading(context);
 
-   Future<void> updateProfile({
-    required String companyName,
-    required String companyLocation,
-    required String firstName,
-    required String lastName,
-    required String currentPosition,
-    required String companySize,
-    required String aboutCompany,
-    File? companyLogoFile,
-    required BuildContext context,
-  }) async {
-    try {
-      emit(state.copyWith(isLoading: true));
-      Loading().startLoading(context);
+    String? companyLogoUrl = state.userInfo.companyLogoUrl;
 
-      String? companyLogoUrl = state.userInfo.companyLogoUrl;
-
-      // Upload company logo if a new file is provided
-     String? companyLogoFileUrl;
-      if (companyLogoFile != null) {
-        companyLogoFileUrl = await _uploadCompanyImage(state.userInfo.uid, companyLogoFile);
-      }
-
-      // Create a map of the updated profile data
-      final updatedUserInfo = {
-        'companyName': companyName,
-        'companyLocation': companyLocation,
-        'firstName': firstName,
-        'lastName': lastName,
-        'currentPosition': currentPosition,
-        'companySize': companySize,
-        'aboutCompany': aboutCompany,
-        'companyLogoUrl': companyLogoFileUrl,
-      };
-
-      // Update the Firestore document
-      final userDocRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(state.userInfo.uid);
-      await userDocRef.update(updatedUserInfo);
-
-      // Update local state and SharedPreferences
-      final updatedUserInfoModel = UserInfoModel(
-        uid: state.userInfo.uid,
-        email: state.userInfo.email,
-        companyName: companyName,
-        companyLocation: companyLocation,
-        firstName: firstName,
-        lastName: lastName,
-        currentPosition: currentPosition,
-        companySize: companySize,
-        aboutCompany: aboutCompany,
-        companyLogoUrl: companyLogoUrl, birthday: Timestamp.fromDate(DateTime.now()), gender: '', profileUrl: '', userType: state.userInfo.userType,
-      );
-
-      // Save the updated user info to SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      String userInfoJson = jsonEncode(updatedUserInfoModel.toJson());
-        await prefs.setString('user_info', userInfoJson);
-
-      emit(state.copyWith(
-        userInfo: updatedUserInfoModel,
-        isLoading: false,
-      ));
-      Loading().stopLoading(context);
-    } catch (e) {
-      emit(state.copyWith(isLoading: false));
-      Loading().stopLoading(context);
-      // Handle error appropriately, e.g., show a snackbar or log the error
-      throw e;
+    // Upload company logo if a new file is provided
+    String? companyLogoFileUrl;
+    if (companyLogoFile != null) {
+      companyLogoFileUrl = await _uploadCompanyImage(state.userInfo.uid, companyLogoFile);
     }
+
+    // Create a map of the updated profile data
+    final updatedUserInfo = {
+      'companyName': companyName,
+      'companyLocation': companyLocation,
+      'firstName': firstName,
+      'lastName': lastName,
+      'currentPosition': currentPosition,
+      'companySize': companySize,
+      'aboutCompany': aboutCompany,
+      'companyLogoUrl': companyLogoFileUrl ?? companyLogoUrl, // Use the new URL if available
+    };
+
+    // Update the Firestore document
+    final userDocRef = FirebaseFirestore.instance.collection('users').doc(state.userInfo.uid);
+    await userDocRef.update(updatedUserInfo);
+
+    // Update local state and SharedPreferences
+    final updatedUserInfoModel = UserInfoModel(
+      uid: state.userInfo.uid,
+      email: state.userInfo.email,
+      companyName: companyName,
+      companyLocation: companyLocation,
+      firstName: firstName,
+      lastName: lastName,
+      currentPosition: currentPosition,
+      companySize: companySize,
+      aboutCompany: aboutCompany,
+      companyLogoUrl: companyLogoFileUrl ?? companyLogoUrl,
+      birthday: state.userInfo.birthday,
+      gender: state.userInfo.gender,
+      profileUrl: state.userInfo.profileUrl,
+      userType: state.userInfo.userType,
+    );
+
+    // Save the updated user info to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    String userInfoJson = jsonEncode(updatedUserInfoModel.toJson());
+    await prefs.setString('user_info', userInfoJson);
+
+    emit(state.copyWith(
+      userInfo: updatedUserInfoModel,
+      isLoading: false,
+    ));
+
+     _fetchJobsAndUpdateCache(); // Refresh the list of posts
+
+    // Loading().stopLoading(context);
+  } catch (e) {
+    emit(state.copyWith(isLoading: false));
+    // Loading().stopLoading(context);
+    // Handle error appropriately, e.g., show a snackbar or log the error
+    print('Error updating profile: $e');
   }
+}
+
+
+
+
+
 
   Future<String> _uploadProfileImage(String uid, File profileImage) async {
   try {
@@ -681,11 +690,11 @@ Future<void> updateProfileSeeker({
   required DateTime birthday,
   required String gender,
   File? profileImage,
-  required BuildContext context,
+  // required BuildContext context,
 }) async {
   try {
     emit(state.copyWith(isLoading: true));
-    Loading().startLoading(context);
+    // Loading().startLoading(context);
 
     String? profileImageUrl = state.userInfo.profileUrl;
 
@@ -737,10 +746,10 @@ Future<void> updateProfileSeeker({
       userInfo: updatedUserInfoModel,
       isLoading: false,
     ));
-    Loading().stopLoading(context);
+    // Loading().stopLoading(context);
   } catch (e) {
     emit(state.copyWith(isLoading: false));
-    Loading().stopLoading(context);
+    // Loading().stopLoading(context);
     // Handle error appropriately, e.g., show a snackbar or log the error
     // throw e;
   }

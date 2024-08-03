@@ -48,6 +48,7 @@ class _SeekerProfileScreenState extends State<SeekerProfileScreen> {
       await prefs.remove('interview_types');
       await prefs.remove('searchTextList');
       await prefs.remove('cached_jobs');
+       await prefs.remove('cachedChats');
 
       await FirebaseAuth.instance.signOut();
 
@@ -215,7 +216,7 @@ class _SeekerProfileScreenState extends State<SeekerProfileScreen> {
                         birthday: _birthday!,
                         gender: _selectedGender,
                         profileImage: _profileImage,
-                        context: context,
+                        // context: context,
                       );
                     },
                     buttonText: "Update",

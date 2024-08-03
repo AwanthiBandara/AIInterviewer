@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aiinterviewer/bloc/app_bloc/app_cubit.dart';
 import 'package:aiinterviewer/models/chat_model.dart';
 import 'package:aiinterviewer/models/message_model.dart';
@@ -21,6 +23,17 @@ class ChatCubit extends Cubit<ChatState> {
     final currentUserId = BlocProvider.of<AppCubit>(context).state.userInfo.uid;
 
     try {
+      // Load chats from cache
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedChatsJson = prefs.getString('cachedChats');
+      if (cachedChatsJson != null) {
+        List<dynamic> cachedChatsList = jsonDecode(cachedChatsJson);
+        List<ChatModel> cachedChats = cachedChatsList
+            .map((chatJson) => ChatModel.fromMap(chatJson as Map<String, dynamic>))
+            .toList();
+        emit(state.copyWith(isLoading: false, chats: cachedChats));
+      }
+
       // Fetch all chat documents
       final chatDocs = await chatCollection.get();
 
@@ -59,12 +72,15 @@ class ChatCubit extends Cubit<ChatState> {
             otherUser: otherUser,
             messages: messages,
             lastMessage: chatData != null ? chatData['lastMessage'] ?? '' : '',
-            // lastMessageTime: chatData != null && chatData['lastMessageTime'] != null ? chatData['lastMessageTime'] as Timestamp : Timestamp.now(),
           );
 
           chats.add(chat);
         }
       }
+
+      // Save chats to cache
+      String chatsJson = jsonEncode(chats.map((chat) => chat.toMap()).toList());
+      await prefs.setString('cachedChats', chatsJson);
 
       emit(state.copyWith(isLoading: false, chats: chats));
     } catch (e) {
@@ -72,30 +88,32 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-Future<void> createChat(String chatId, String applicantId) async {
-  // Fetch the other user's data from Firestore
-  final otherUserDoc = await FirebaseFirestore.instance.collection('users').doc(applicantId).get();
-  final otherUserData = otherUserDoc.data() as Map<String, dynamic>;
+  Future<void> createChat(String chatId, String applicantId) async {
+    // Fetch the other user's data from Firestore
+    final otherUserDoc = await FirebaseFirestore.instance.collection('users').doc(applicantId).get();
+    final otherUserData = otherUserDoc.data() as Map<String, dynamic>;
 
-  final otherUser = UserInfoModel.fromJson(otherUserData);
+    final otherUser = UserInfoModel.fromJson(otherUserData);
 
-  // Create a new ChatModel with the necessary data
-  final newChat = ChatModel(
-    id: chatId,
-    otherUser: otherUser,
-    messages: [],
-    lastMessage: '',
-    // lastMessageTime: Timestamp.now(),
-  );
+    // Create a new ChatModel with the necessary data
+    final newChat = ChatModel(
+      id: chatId,
+      otherUser: otherUser,
+      messages: [],
+      lastMessage: '',
+    );
 
-  // Save the new chat to the database
-  await FirebaseFirestore.instance.collection('chats').doc(chatId).set(newChat.toMap());
+    // Save the new chat to the database
+    await FirebaseFirestore.instance.collection('chats').doc(chatId).set(newChat.toMap());
 
-  // Update the state with the new chat
-  final updatedChats = List<ChatModel>.from(state.chats ?? [])..add(newChat);
-  emit(state.copyWith(chats: updatedChats));
-}
+    // Update the state with the new chat
+    final updatedChats = List<ChatModel>.from(state.chats ?? [])..add(newChat);
+    
+    // Save the updated chats to cache
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String chatsJson = jsonEncode(updatedChats.map((chat) => chat.toMap()).toList());
+    await prefs.setString('cachedChats', chatsJson);
 
-
-
+    emit(state.copyWith(chats: updatedChats));
+  }
 }

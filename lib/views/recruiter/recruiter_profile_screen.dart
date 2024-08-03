@@ -30,6 +30,7 @@ class _RecruiterProfileScreenState extends State<RecruiterProfileScreen> {
       await prefs.remove('interview_types');
       await prefs.remove('searchTextList');
       await prefs.remove('cached_jobs');
+      await prefs.remove('cachedChats');
 
       await FirebaseAuth.instance.signOut();
 
@@ -220,7 +221,7 @@ setState(() {
                             companySize: _companySizeController.text,
                             aboutCompany: _aboutCompanyController.text,
                             companyLogoFile: _companyImage,
-                            context: context,
+                            // context: context,
                           );
                     },
                     buttonText: "Update",

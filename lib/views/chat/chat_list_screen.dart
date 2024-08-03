@@ -46,6 +46,27 @@ class ChatListScreen extends StatelessWidget {
                 return parts.contains(currentUserId);
               }).toList();
 
+              filteredChats.sort((a, b) {
+                final dataA = a.data() as Map<String, dynamic>;
+                final dataB = b.data() as Map<String, dynamic>;
+                final List<dynamic> messageListA = dataA['data'] as List<dynamic>;
+                final List<dynamic> messageListB = dataB['data'] as List<dynamic>;
+
+                final latestMessageTimeA = messageListA.isNotEmpty
+                    ? (messageListA.last as Map<String, dynamic>)['dateTime'] is Timestamp
+                        ? (messageListA.last as Map<String, dynamic>)['dateTime'].toDate()
+                        : DateTime.parse((messageListA.last as Map<String, dynamic>)['dateTime'] as String)
+                    : DateTime(0);
+
+                final latestMessageTimeB = messageListB.isNotEmpty
+                    ? (messageListB.last as Map<String, dynamic>)['dateTime'] is Timestamp
+                        ? (messageListB.last as Map<String, dynamic>)['dateTime'].toDate()
+                        : DateTime.parse((messageListB.last as Map<String, dynamic>)['dateTime'] as String)
+                    : DateTime(0);
+
+                return latestMessageTimeB.compareTo(latestMessageTimeA);
+              });
+
               return ListView.builder(
                 physics: BouncingScrollPhysics(),
                 padding: EdgeInsets.all(8),
