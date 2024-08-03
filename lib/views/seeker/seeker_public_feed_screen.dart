@@ -183,7 +183,7 @@ class JobCardRecruiter extends StatelessWidget {
               height: 60,
               width: 60,
               decoration: BoxDecoration(
-                color: greyTextColor,
+                color: inCardColor,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
                 image: DecorationImage(
