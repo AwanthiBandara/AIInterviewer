@@ -690,11 +690,11 @@ Future<void> updateProfileSeeker({
   required DateTime birthday,
   required String gender,
   File? profileImage,
-  required BuildContext context,
+  // required BuildContext context,
 }) async {
   try {
     emit(state.copyWith(isLoading: true));
-    Loading().startLoading(context);
+    // Loading().startLoading(context);
 
     String? profileImageUrl = state.userInfo.profileUrl;
 
@@ -746,10 +746,10 @@ Future<void> updateProfileSeeker({
       userInfo: updatedUserInfoModel,
       isLoading: false,
     ));
-    Loading().stopLoading(context);
+    // Loading().stopLoading(context);
   } catch (e) {
     emit(state.copyWith(isLoading: false));
-    Loading().stopLoading(context);
+    // Loading().stopLoading(context);
     // Handle error appropriately, e.g., show a snackbar or log the error
     // throw e;
   }
