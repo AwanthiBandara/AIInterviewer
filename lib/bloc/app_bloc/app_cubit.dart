@@ -541,6 +541,8 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
     'applicants': updatedApplicantsJson,
   });
 
+  _fetchJobsFromFirestore();
+
   resetAnswerAndIdsLists();
 }
 
@@ -655,8 +657,6 @@ Future<void> updateProfile({
       userInfo: updatedUserInfoModel,
       isLoading: false,
     ));
-
-     _fetchJobsAndUpdateCache(); // Refresh the list of posts
 
     // Loading().stopLoading(context);
   } catch (e) {
