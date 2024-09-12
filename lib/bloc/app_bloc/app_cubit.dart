@@ -656,8 +656,6 @@ Future<void> updateProfile({
       isLoading: false,
     ));
 
-     _fetchJobsAndUpdateCache(); // Refresh the list of posts
-
     // Loading().stopLoading(context);
   } catch (e) {
     emit(state.copyWith(isLoading: false));
