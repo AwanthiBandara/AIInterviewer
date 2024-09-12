@@ -541,6 +541,8 @@ Future<void> resultsFinalization(List<dynamic> data, JobModel job) async {
     'applicants': updatedApplicantsJson,
   });
 
+  _fetchJobsFromFirestore();
+
   resetAnswerAndIdsLists();
 }
 
