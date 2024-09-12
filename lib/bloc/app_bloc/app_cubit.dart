@@ -453,7 +453,8 @@ class AppCubit extends Cubit<AppState> {
   }
 
   Future<http.Response> predict() async {
-    var url = Uri.parse('http://10.0.2.2:5000/predict-list');
+    var url = Uri.parse('https://awanthi96.pythonanywhere.com/predict-list');
+    // var url = Uri.parse('http://10.0.2.2:5000/predict-list');
     // Use the following line for local testing:
     // var url = Uri.parse('http://127.0.0.1:5000/predict');
 
