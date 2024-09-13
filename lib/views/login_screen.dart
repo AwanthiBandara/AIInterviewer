@@ -69,6 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     hintText: 'Password',
                     overlineText: 'Enter your password',
+                    obscureText: true,
                   ),
                   const SizedBox(height: 32),
                   CustomButton(

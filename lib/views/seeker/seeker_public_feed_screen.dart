@@ -1,6 +1,14 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:aiinterviewer/bloc/app_bloc/app_cubit.dart';
 import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
+import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/helper/helper_functions.dart';
 import 'package:aiinterviewer/models/job_model.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
@@ -8,15 +16,15 @@ import 'package:aiinterviewer/widgets/custom_searchbar.dart';
 import 'package:aiinterviewer/widgets/new_job_bottomsheet.dart';
 import 'package:aiinterviewer/widgets/recruiter_view_job_bottomsheet.dart';
 import 'package:aiinterviewer/widgets/seeker_view_job_bottomsheet.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:aiinterviewer/constants/colors.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SeekerPublicFeedScreen extends StatelessWidget {
+class SeekerPublicFeedScreen extends StatefulWidget {
   SeekerPublicFeedScreen({super.key}) {}
 
+  @override
+  State<SeekerPublicFeedScreen> createState() => _SeekerPublicFeedScreenState();
+}
+
+class _SeekerPublicFeedScreenState extends State<SeekerPublicFeedScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   void _showNewJobBottomSheet(BuildContext context) {
@@ -32,7 +40,7 @@ class SeekerPublicFeedScreen extends StatelessWidget {
     );
   }
 
-    void _showSeekerViewJobBottomSheet(BuildContext context, JobModel job) {
+  void _showSeekerViewJobBottomSheet(BuildContext context, JobModel job) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -58,33 +66,52 @@ class SeekerPublicFeedScreen extends StatelessWidget {
               builder: (context, state) {
                 return Row(
                   children: [
-                   Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: secondaryColor),
-                      image: DecorationImage(
-                        image: state.userInfo.profileUrl.isNotEmpty
-                            ? NetworkImage(state.userInfo.profileUrl)
-                            : const AssetImage('assets/images/default_profile.jpg') as ImageProvider,
-                        fit: BoxFit.cover,
+                    Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: secondaryColor),
+                        image: DecorationImage(
+                          image: state.userInfo.profileUrl.isNotEmpty
+                              ? NetworkImage(state.userInfo.profileUrl)
+                              : const AssetImage(
+                                      'assets/images/default_profile.jpg')
+                                  as ImageProvider,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
                     SizedBox(width: 8),
                     Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("${state.userInfo.firstName} ${state.userInfo.lastName}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: greyTextColor),),
-                                Text("${state.userInfo.currentPosition}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
-                              ],
-                            ),
-                            Spacer(),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "${state.userInfo.firstName} ${state.userInfo.lastName}",
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: greyTextColor),
+                        ),
+                        Text(
+                          "${state.userInfo.currentPosition}",
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 1,
+                              color: greyTextColor),
+                        ),
+                      ],
+                    ),
+                    Spacer(),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.bookmark, color: greyTextColor, size: 22,),
+                        Icon(
+                          Icons.bookmark,
+                          color: greyTextColor,
+                          size: 22,
+                        ),
                       ],
                     )
                   ],
@@ -92,9 +119,12 @@ class SeekerPublicFeedScreen extends StatelessWidget {
               },
             ),
             const SizedBox(height: 5),
-            Divider(color: secondaryColor, thickness: 0.4,),
+            Divider(
+              color: secondaryColor,
+              thickness: 0.4,
+            ),
             const SizedBox(height: 15),
-           CustomSearchBar(
+            CustomSearchBar(
               controller: _searchController,
               onChanged: (text) {
                 context.read<AppCubit>().setSearchQuery(text);
@@ -125,9 +155,10 @@ class SeekerPublicFeedScreen extends StatelessWidget {
                 List<JobModel> sortedJobs = List.from(state.jobs)
                   ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-                   final filteredJobs = sortedJobs.where((job) {
+                final filteredJobs = sortedJobs.where((job) {
                   final query = state.searchQuery.toLowerCase();
-                  return job.jobTitle.toLowerCase().contains(query) || job.jobDescription.toLowerCase().contains(query);
+                  return job.jobTitle.toLowerCase().contains(query) ||
+                      job.jobDescription.toLowerCase().contains(query);
                 }).toList();
 
                 return Expanded(
@@ -139,7 +170,8 @@ class SeekerPublicFeedScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final thisJob = filteredJobs[index];
                       return GestureDetector(
-                        onTap: () => _showSeekerViewJobBottomSheet(context, thisJob),
+                        onTap: () =>
+                            _showSeekerViewJobBottomSheet(context, thisJob),
                         child: JobCardRecruiter(
                           job: thisJob,
                         ),
@@ -179,21 +211,25 @@ class JobCardRecruiter extends StatelessWidget {
         children: [
           Row(
             children: [
-               Container(
-              height: 60,
-              width: 60,
-              decoration: BoxDecoration(
-                color: inCardColor,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
-                image: DecorationImage(
-                  image: job.createdUser?.companyLogoUrl != null && job.createdUser!.companyLogoUrl!.isNotEmpty
-                      ? NetworkImage(job.createdUser!.companyLogoUrl!)
-                      : const AssetImage('assets/images/company_placeholder.png') as ImageProvider,
-                  fit: BoxFit.cover,
+              Container(
+                height: 60,
+                width: 60,
+                decoration: BoxDecoration(
+                  color: inCardColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: secondaryColor.withOpacity(0.2), width: 1.2),
+                  image: DecorationImage(
+                    image: job.createdUser?.companyLogoUrl != null &&
+                            job.createdUser!.companyLogoUrl!.isNotEmpty
+                        ? NetworkImage(job.createdUser!.companyLogoUrl!)
+                        : const AssetImage(
+                                'assets/images/company_placeholder.png')
+                            as ImageProvider,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,10 +274,44 @@ class JobCardRecruiter extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "${job.applicants.length} applicants",
-                style: const TextStyle(
-                    fontSize: 12, letterSpacing: 0.6, color: white),
+              BlocBuilder<AppCubit, AppState>(
+                builder: (context, state) {
+                  return Row(
+                    children: [
+                      Text(
+                        "${job.applicants.length} applicants",
+                        style: const TextStyle(
+                            fontSize: 12, letterSpacing: 0.6, color: white),
+                      ),
+                      job.applicants.any((e) => e.applicantId == state.userInfo.uid)
+                          ? Text(
+                              " | ",
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  letterSpacing: 0.6,
+                                  color: white),
+                            )
+                          : SizedBox(),
+                      job.applicants.any((e) => e.applicantId == state.userInfo.uid)
+                          ? Container(
+                              decoration: BoxDecoration(
+                                color: green.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              padding: EdgeInsets.symmetric(horizontal: 6),
+                              child: Text(
+                                "Applied",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    letterSpacing: 0.6,
+                                    color: green,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                            )
+                          : SizedBox(),
+                    ],
+                  );
+                },
               ),
               Text(
                 timeAgo(job.createdAt.toDate()),
