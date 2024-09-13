@@ -31,7 +31,7 @@ class ChatListScreen extends StatelessWidget {
             stream: FirebaseFirestore.instance.collection('chats').snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return Center(child: Text("Loading...", style: TextStyle(color: greyTextColor.withOpacity(0.5)),),);
               }
 
               if (snapshot.hasError) {
@@ -67,6 +67,12 @@ class ChatListScreen extends StatelessWidget {
                 return latestMessageTimeB.compareTo(latestMessageTimeA);
               });
 
+              if(filteredChats.length == 0){
+                    return Container(child: Center(
+                        child: Text("No available chats", style: TextStyle(color: greyTextColor.withOpacity(0.5)),),
+                      ),);
+                  }
+
               return ListView.builder(
                 physics: BouncingScrollPhysics(),
                 padding: EdgeInsets.all(8),
@@ -74,6 +80,7 @@ class ChatListScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final chatDoc = filteredChats[index];
                   final data = chatDoc.data() as Map<String, dynamic>?;
+
 
                   if (data != null && data.containsKey('data')) {
                     final List<dynamic> messageList = data['data'] as List<dynamic>;
@@ -96,7 +103,11 @@ class ChatListScreen extends StatelessWidget {
                       future: FirebaseFirestore.instance.collection('users').doc(otherUserId).get(),
                       builder: (context, userSnapshot) {
                         if (userSnapshot.connectionState == ConnectionState.waiting) {
-                          return Container(); // Return an empty container while waiting for user data
+                          return Container(
+                            child: Center(
+                        child: Text("No available chats"),
+                      ),
+                          ); // Return an empty container while waiting for user data
                         }
 
                         if (userSnapshot.hasError) {
@@ -130,12 +141,20 @@ class ChatListScreen extends StatelessWidget {
                             ),
                           );
                         } else {
-                          return Container(); // Handle empty user data case
+                          return Container(
+                            child: Center(
+                        child: Text("No available chats"),
+                      ),
+                          ); // Handle empty user data case
                         }
                       },
                     );
                   } else {
-                    return Container(); // Handle empty data case
+                    return Container(
+                      child: Center(
+                        child: Text("No available chats"),
+                      ),
+                    ); // Handle empty data case
                   }
                 },
               );

@@ -1,14 +1,34 @@
+import 'package:aiinterviewer/bloc/app_bloc/app_cubit.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/helper/helper_functions.dart';
 import 'package:aiinterviewer/models/job_model.dart';
 import 'package:aiinterviewer/views/seeker/seeker_bimetric_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SeekerViewJobBottomSheet extends StatelessWidget {
+class SeekerViewJobBottomSheet extends StatefulWidget {
   final JobModel job;
   const SeekerViewJobBottomSheet({super.key, required this.job});
 
+  @override
+  State<SeekerViewJobBottomSheet> createState() => _SeekerViewJobBottomSheetState();
+}
+
+class _SeekerViewJobBottomSheetState extends State<SeekerViewJobBottomSheet> {
+
+  String cuid = "";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    setState(() {
+      cuid = BlocProvider.of<AppCubit>(context).state.userInfo.uid;
+    });
+
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -67,12 +87,12 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                                     color: secondaryColor.withOpacity(0.2),
                                     width: 1.2),
                                 image: DecorationImage(
-                                  image: job.createdUser
+                                  image: widget.job.createdUser
                                                   ?.companyLogoUrl !=
                                               null &&
-                                          job.createdUser!
+                                          widget.job.createdUser!
                                               .companyLogoUrl.isNotEmpty
-                                      ? NetworkImage(job.createdUser!.companyLogoUrl!)
+                                      ? NetworkImage(widget.job.createdUser!.companyLogoUrl!)
                                       : const AssetImage(
                                               'assets/images/company_placeholder.png')
                                           as ImageProvider,
@@ -84,9 +104,9 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(job.jobTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: greyTextColor),),
-                                Text("${job.createdUser?.companyName}, ${job.createdUser?.companyLocation}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
-                                Text( "${job.jobType} | ${job.salaryRange}", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: greyTextColor),),
+                                Text(widget.job.jobTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: greyTextColor),),
+                                Text("${widget.job.createdUser?.companyName}, ${widget.job.createdUser?.companyLocation}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, letterSpacing: 1, color: greyTextColor),),
+                                Text("${widget.job.jobType} | ${widget.job.salaryRange}", style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: greyTextColor),),
                               ],
                             ),
                           ],
@@ -98,7 +118,7 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                            "${job.applicants.length} applicants | ${timeAgo(job.createdAt.toDate())}",
+                            "${widget.job.applicants.length} applicants | ${timeAgo(widget.job.createdAt.toDate())}",
                               style: const TextStyle(fontSize: 12, color: green, fontWeight: FontWeight.w500),
                             ),
                             SizedBox()
@@ -131,7 +151,7 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                           "${job.jobDescription}",
+                           "${widget.job.jobDescription}",
                           style: TextStyle(fontSize: 12, color: cardTextColor),
                         ),
                         const SizedBox(height: 12),
@@ -146,7 +166,7 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                               "${job.jobRequirements}",
+                               "${widget.job.jobRequirements}",
                               style: TextStyle(fontSize: 12, color: cardTextColor),
                             ),
                             const SizedBox(height: 12),
@@ -161,7 +181,7 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              "${job.jobBenefits}",
+                              "${widget.job.jobBenefits}",
                               style: TextStyle(fontSize: 12, color: cardTextColor),
                             ),
                               const SizedBox(height: 12),
@@ -172,7 +192,7 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                             "${job.salaryRange}",
+                             "${widget.job.salaryRange}",
                               style: TextStyle(fontSize: 12, color: cardTextColor),
                             ),
                           ],
@@ -187,15 +207,16 @@ class SeekerViewJobBottomSheet extends StatelessWidget {
             ),
           ),
           CustomButton(
+            enabled: widget.job.applicants.any((e) => e.applicantId == cuid) ? false : true ,
             onTap: () {
               
               Navigator.of(context).pop(); // Close the bottom sheet after publishing
                Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => SeekerBiometricScreen(job: job,)),
+                          MaterialPageRoute(builder: (context) => SeekerBiometricScreen(job: widget.job,)),
                         );
             },
-            buttonText: "Start Interview",
+            buttonText: widget.job.applicants.any((e) => e.applicantId == cuid) ? "Already Applied" : "Start Interview",
           ),
           SizedBox(height: 15),
         ],

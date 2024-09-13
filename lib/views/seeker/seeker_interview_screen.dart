@@ -4,6 +4,7 @@ import 'package:aiinterviewer/bloc/app_bloc/app_state.dart';
 import 'package:aiinterviewer/constants/colors.dart';
 import 'package:aiinterviewer/helper/helper_functions.dart';
 import 'package:aiinterviewer/models/job_model.dart';
+import 'package:aiinterviewer/views/seeker/seeker_end_session_screen.dart';
 import 'package:aiinterviewer/views/seeker/seeker_main_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_textfield.dart';
@@ -37,19 +38,22 @@ class SeekerInterviewScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    height: 60,
-                    width: 60,
-                    decoration: BoxDecoration(
+                   Container(
+                      height: 60,
+                      width: 60,
+                      decoration: BoxDecoration(
                         color: greyTextColor,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                            color: secondaryColor.withOpacity(0.2), width: 1.2),
+                        border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
                         image: DecorationImage(
-                            image: NetworkImage(
-                                "https://penji.co/wp-content/uploads/2022/10/4.-OrSpeakIT.jpg"),
-                            fit: BoxFit.cover)),
-                  ),
+                          image: job.createdUser?.companyLogoUrl != null &&
+                                  job.createdUser!.companyLogoUrl.isNotEmpty
+                              ? NetworkImage(job.createdUser!.companyLogoUrl!)
+                              : AssetImage('assets/images/company_placeholder.png') as ImageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,16 +65,16 @@ class SeekerInterviewScreen extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                             color: greyTextColor),
                       ),
-                      const Text(
-                        "HR Head at ABC Pvt Ltd, UK",
+                      Text(
+                        "${job.createdUser?.companyName}, ${job.createdUser?.companyLocation}",
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             letterSpacing: 1,
                             color: greyTextColor),
                       ),
-                      const Text(
-                        "Remote | USD85,000/yr - USD95,000/yr",
+                      Text(
+                        "${job.jobType} | ${job.salaryRange}",
                         style: TextStyle(
                             fontSize: 12,
                             letterSpacing: 1,
@@ -120,7 +124,7 @@ class SeekerInterviewScreen extends StatelessWidget {
               Row(
                 children: [
                   const Text(
-                    "Biometric verification",
+                    "Theoritical Interview",
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -199,7 +203,7 @@ class SeekerInterviewScreen extends StatelessWidget {
                            Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => SeekerMainScreen()),
+                                      builder: (context) => SeekerEndSessionScreen(job: job,)),
                                 );
     
                         } else {
