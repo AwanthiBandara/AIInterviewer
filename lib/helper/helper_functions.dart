@@ -48,3 +48,11 @@ String getSuffix(int rank) {
       return 'th';
   }
 }
+
+String formatPercentage(double value) {
+
+  // Multiply by 100 to convert to percentage and format to two decimal points
+  String formattedPercentage = (value * 100).toStringAsFixed(2);
+
+  return '$formattedPercentage%';
+}

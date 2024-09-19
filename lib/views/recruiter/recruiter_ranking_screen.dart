@@ -136,20 +136,28 @@ class _RecruiterRankingScreenState extends State<RecruiterRankingScreen> {
                                           ),
                                           Text(
                                             applicant.currentPosition,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 14,
                                               letterSpacing: 1,
                                               color: greyTextColor,
                                             ),
                                           ),
-                                          const Text(
-                                            "Ranked at 1st | Success Percentage 78.89%",
-                                            style: TextStyle(
-                                              fontSize: 14,
+                                          Text(
+                                            "Ranked at ${index+1}${getSuffix(index+1)} | Success Percentage ${formatPercentage(applicant.average)}",
+                                            style: const TextStyle(
+                                              fontSize: 13,
                                               fontWeight: FontWeight.w500,
                                               color: cardTextColor,
                                             ),
                                           ),
+                                          // Text(
+                                          //   "Ranked at 1st | Success Percentage 78.89%",
+                                          //   style: TextStyle(
+                                          //     fontSize: 14,
+                                          //     fontWeight: FontWeight.w500,
+                                          //     color: cardTextColor,
+                                          //   ),
+                                          // ),
                                           SizedBox(height: 2),
                                           Text(
                                             "${applicant.email} | +94 77 123 1234",

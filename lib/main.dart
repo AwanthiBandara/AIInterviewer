@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
+        title: 'AI Interviewer',
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
