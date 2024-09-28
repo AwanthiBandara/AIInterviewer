@@ -8,15 +8,65 @@ import 'package:aiinterviewer/views/seeker/seeker_end_session_screen.dart';
 import 'package:aiinterviewer/views/seeker/seeker_main_screen.dart';
 import 'package:aiinterviewer/widgets/custom_button.dart';
 import 'package:aiinterviewer/widgets/custom_textfield.dart';
+import 'package:aiinterviewer/widgets/screen_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
-class SeekerInterviewScreen extends StatelessWidget {
+class SeekerInterviewScreen extends StatefulWidget {
   final JobModel job;
   SeekerInterviewScreen({super.key, required this.job});
 
+  @override
+  State<SeekerInterviewScreen> createState() => _SeekerInterviewScreenState();
+}
+
+class _SeekerInterviewScreenState extends State<SeekerInterviewScreen> {
   final TextEditingController _answerController = TextEditingController();
+
+  SpeechToText _speechToText = SpeechToText();
+  bool _speechEnabled = false;
+  String whatYouSaid = '';
+  String _lastWords = '';
+
+   /// This has to happen only once per app
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize();
+    // setState(() {});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _initSpeech();
+    context.read<AppCubit>().setCurrentPlayingIndex(0);
+  }
+
+    /// Each time to start a speech recognition session
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    // setState(() {});
+  }
+
+    void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      _lastWords = result.recognizedWords;
+      whatYouSaid = _lastWords.toString();
+      _answerController.text = whatYouSaid;
+    });
+  }
+
+  /// Manually stop the active speech recognition session
+  /// Note that there are also timeouts that each platform enforces
+  /// and the SpeechToText plugin supports setting timeouts on the
+  /// listen method.
+  void _stopListening() async {
+    await _speechToText.stop();
+    // setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +96,9 @@ class SeekerInterviewScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: secondaryColor.withOpacity(0.2), width: 1.2),
                         image: DecorationImage(
-                          image: job.createdUser?.companyLogoUrl != null &&
-                                  job.createdUser!.companyLogoUrl.isNotEmpty
-                              ? NetworkImage(job.createdUser!.companyLogoUrl!)
+                          image: widget.job.createdUser?.companyLogoUrl != null &&
+                                  widget.job.createdUser!.companyLogoUrl.isNotEmpty
+                              ? NetworkImage(widget.job.createdUser!.companyLogoUrl!)
                               : AssetImage('assets/images/company_placeholder.png') as ImageProvider,
                           fit: BoxFit.cover,
                         ),
@@ -59,14 +109,14 @@ class SeekerInterviewScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        job.jobTitle,
+                        widget.job.jobTitle,
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color: greyTextColor),
                       ),
                       Text(
-                        "${job.createdUser?.companyName}, ${job.createdUser?.companyLocation}",
+                        "${widget.job.createdUser?.companyName}, ${widget.job.createdUser?.companyLocation}",
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -74,7 +124,7 @@ class SeekerInterviewScreen extends StatelessWidget {
                             color: greyTextColor),
                       ),
                       Text(
-                        "${job.jobType} | ${job.salaryRange}",
+                        "${widget.job.jobType} | ${widget.job.salaryRange}",
                         style: TextStyle(
                             fontSize: 12,
                             letterSpacing: 1,
@@ -90,7 +140,7 @@ class SeekerInterviewScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${job.applicants.length} applicants | ${timeAgo(job.createdAt.toDate())}",
+                    "${widget.job.applicants.length} applicants | ${timeAgo(widget.job.createdAt.toDate())}",
                     style: const TextStyle(
                         fontSize: 12, color: green, fontWeight: FontWeight.w500),
                   ),
@@ -173,10 +223,10 @@ class SeekerInterviewScreen extends StatelessWidget {
                   ),
                   SizedBox(width: 12),
                   CustomButton(
-                    onTap: () {
-                      // Implement microphone functionality here
-                    },
-                    buttonText: "Turn on mic",
+                    onTap: _speechToText.isNotListening
+                      ? _startListening
+                      : _stopListening,
+                    buttonText: _speechToText.isNotListening ? "Turn on mic" : "Listening...",
                     buttonType: ButtonType.Small,
                     buttonColor: secondaryColor.withOpacity(0.3),
                     textColor: secondaryColor,
@@ -194,21 +244,21 @@ class SeekerInterviewScreen extends StatelessWidget {
                         context.read<AppCubit>().setCurrentPlayingIndex(
                             state.currentPlayingIndex + 1);
                       } else {
+                        Loading().startLoading(context);
                         Response response = await context.read<AppCubit>().predict();
                         if (response.statusCode == 200) {
                           var data = jsonDecode(response.body);
                           print(data);
-                          context.read<AppCubit>().resultsFinalization(data, job);
+                          context.read<AppCubit>().resultsFinalization(data, widget.job);
+                          Loading().stopLoading(context);
                           // Handle successful prediction response
                            Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => SeekerEndSessionScreen(job: job,)),
+                                      builder: (context) => SeekerEndSessionScreen(job: widget.job,)),
                                 );
-                          Future.delayed((Duration(milliseconds: 2000)), (){
-                           context.read<AppCubit>().setCurrentPlayingIndex(0);
-                          });
                         } else {
+                          Loading().stopLoading(context);
                           print('Failed to get prediction.');
                           // Handle error response
                         }
