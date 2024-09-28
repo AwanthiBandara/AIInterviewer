@@ -205,7 +205,9 @@ class SeekerInterviewScreen extends StatelessWidget {
                                   MaterialPageRoute(
                                       builder: (context) => SeekerEndSessionScreen(job: job,)),
                                 );
-    
+                          Future.delayed((Duration(milliseconds: 2000)), (){
+                           context.read<AppCubit>().setCurrentPlayingIndex(0);
+                          });
                         } else {
                           print('Failed to get prediction.');
                           // Handle error response
